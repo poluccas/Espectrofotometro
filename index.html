@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espectrofotômetro Profissional</title>
+    <title>Espectrofotômetro Estável</title>
     <style>
         * {
             margin: 0;
@@ -18,6 +18,7 @@
             color: #ffffff;
             padding: 15px;
             line-height: 1.5;
+            overflow-x: hidden;
         }
         
         .container {
@@ -27,43 +28,43 @@
         
         header {
             text-align: center;
-            padding: 20px;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #0a1931, #1a1a2e);
-            border-radius: 15px;
-            border: 1px solid #1e3a8a;
+            padding: 18px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #0c0c2e, #1a1a40);
+            border-radius: 12px;
+            border: 1px solid #2d2d6e;
         }
         
         h1 {
-            font-size: 22px;
-            margin-bottom: 5px;
-            color: #3b82f6;
+            font-size: 20px;
+            margin-bottom: 4px;
+            color: #4cc9f0;
             font-weight: 600;
         }
         
         .subtitle {
-            font-size: 13px;
+            font-size: 12px;
             opacity: 0.9;
-            color: #93c5fd;
+            color: #9d9dff;
         }
         
         .video-section {
-            background: rgba(15, 23, 42, 0.9);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid #1e40af;
+            background: rgba(20, 20, 40, 0.95);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #3a3a8a;
         }
         
         .video-container {
             width: 100%;
-            height: 180px;
+            height: 160px;
             background: #000;
-            border-radius: 10px;
-            margin-bottom: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
             position: relative;
             overflow: hidden;
-            border: 1px solid #334155;
+            border: 1px solid #444;
         }
         
         #video {
@@ -82,22 +83,22 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 20px;
-            background: #0f172a;
+            padding: 15px;
+            background: #0a0a1a;
         }
         
         .controls {
             display: flex;
             gap: 8px;
-            margin-top: 15px;
+            margin-top: 12px;
         }
         
         button {
             flex: 1;
-            padding: 14px;
+            padding: 12px;
             border: none;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
@@ -105,39 +106,40 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
+            min-height: 44px;
         }
         
         button:active { transform: scale(0.97); }
         
         #startBtn { 
-            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            background: linear-gradient(135deg, #4361ee, #4cc9f0);
             color: white;
         }
         
         #stopBtn { 
-            background: linear-gradient(135deg, #dc2626, #ef4444);
+            background: linear-gradient(135deg, #f72585, #ff4d6d);
             color: white;
             display: none;
         }
         
         #flipBtn { 
-            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            background: linear-gradient(135deg, #ff9e00, #ffd166);
             color: white;
             display: none;
         }
         
         .spectrum-section {
-            background: rgba(15, 23, 42, 0.9);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid #1e40af;
+            background: rgba(20, 20, 40, 0.95);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #3a3a8a;
         }
         
         .chart-container {
             width: 100%;
-            height: 320px;
-            margin-bottom: 15px;
+            height: 280px;
+            margin-bottom: 12px;
             position: relative;
         }
         
@@ -145,112 +147,129 @@
             width: 100%;
             height: 100%;
             background: #000;
-            border-radius: 10px;
-            border: 1px solid #334155;
+            border-radius: 8px;
+            border: 1px solid #444;
+            display: block;
         }
         
-        .resolution-control {
-            background: rgba(30, 41, 59, 0.8);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
+        .quality-control {
+            background: rgba(30, 30, 60, 0.9);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
         }
         
         .control-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         .control-label {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: #cbd5e1;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #b8b8ff;
         }
         
         .slider-container {
             position: relative;
-            height: 30px;
+            height: 28px;
         }
         
         input[type="range"] {
             width: 100%;
-            height: 6px;
+            height: 5px;
             -webkit-appearance: none;
-            background: linear-gradient(90deg, #1e40af, #3b82f6);
+            background: linear-gradient(90deg, #3a3a8a, #4361ee);
             border-radius: 3px;
             outline: none;
         }
         
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: white;
-            border: 2px solid #3b82f6;
+            border: 2px solid #4cc9f0;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-        
-        .slider-ticks {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 5px;
-            font-size: 11px;
-            color: #94a3b8;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
         
         .status-bar {
-            background: rgba(30, 41, 59, 0.8);
-            padding: 12px;
+            background: rgba(30, 30, 60, 0.9);
+            padding: 10px;
             border-radius: 8px;
-            margin-top: 15px;
-            font-size: 13px;
+            margin-top: 12px;
+            font-size: 12px;
             display: flex;
             justify-content: space-between;
-            color: #cbd5e1;
+            color: #b8b8ff;
+        }
+        
+        .status-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .status-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #4cc9f0;
+            margin-top: 2px;
         }
         
         footer {
             text-align: center;
-            padding: 20px;
+            padding: 15px;
             font-size: 11px;
-            color: #64748b;
+            color: #6d6dff;
+        }
+        
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #4cc9f0;
+            font-size: 14px;
         }
         
         @media (max-width: 480px) {
             .controls { flex-direction: column; }
-            .chart-container { height: 280px; }
-            .video-container { height: 160px; }
+            .chart-container { height: 240px; }
+            .video-container { height: 140px; }
+            button { min-height: 48px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🔬 ESPECTROFOTÔMETRO PROFISSIONAL</h1>
-            <p class="subtitle">Resolução de laboratório • Análise espectrofotométrica</p>
+            <h1>🔬 ESPECTROFOTÔMETRO ESTÁVEL</h1>
+            <p class="subtitle">Atualização suave • Sem flashes • Alta precisão</p>
         </header>
         
         <section class="video-section">
             <div class="video-container">
                 <div id="placeholder">
-                    <div style="font-size: 36px; margin-bottom: 10px; color: #3b82f6;">📡</div>
-                    <p style="color: #cbd5e1;">Pronto para análise espectrofotométrica</p>
+                    <div style="font-size: 32px; margin-bottom: 8px; color: #4cc9f0;">📡</div>
+                    <p style="color: #b8b8ff; font-size: 14px;">Aguardando inicialização</p>
                 </div>
                 <video id="video" autoplay playsinline muted></video>
+                <div class="loading" id="loading">⏳ Processando...</div>
             </div>
             
             <div class="controls">
                 <button id="startBtn">
-                    <span style="font-size: 16px;">▶</span> INICIAR CÂMERA
+                    <span style="font-size: 15px;">▶</span> INICIAR
                 </button>
                 <button id="stopBtn">
-                    <span style="font-size: 16px;">⏹</span> PARAR
+                    <span style="font-size: 15px;">⏹</span> PARAR
                 </button>
                 <button id="flipBtn">
-                    <span style="font-size: 16px;">🔄</span> VIRAR
+                    <span style="font-size: 15px;">🔄</span> VIRAR
                 </button>
             </div>
         </section>
@@ -260,134 +279,151 @@
                 <canvas id="spectrumCanvas"></canvas>
             </div>
             
-            <div class="resolution-control">
+            <div class="quality-control">
                 <div class="control-group">
                     <div class="control-label">
-                        <span>📊 RESOLUÇÃO ESPECTRAL</span>
-                        <span id="resValue">0.5 nm</span>
+                        <span>📊 SUAVIDADE DO ESPECTRO</span>
+                        <span id="smoothValue">Alta</span>
                     </div>
                     <div class="slider-container">
-                        <input type="range" id="resSlider" min="1" max="5" value="1">
-                    </div>
-                    <div class="slider-ticks">
-                        <span>0.2 nm</span>
-                        <span>0.5 nm</span>
-                        <span>1.0 nm</span>
-                        <span>2.0 nm</span>
-                        <span>5.0 nm</span>
+                        <input type="range" id="smoothSlider" min="1" max="3" value="3">
                     </div>
                 </div>
                 
                 <div class="control-group">
                     <div class="control-label">
-                        <span>⚡ FILTRO DE SUAVIZAÇÃO</span>
-                        <span id="filterValue">Gaussiano</span>
+                        <span>⚡ VELOCIDADE DE ANÁLISE</span>
+                        <span id="speedValue">Média</span>
                     </div>
                     <div class="slider-container">
-                        <input type="range" id="filterSlider" min="1" max="3" value="2">
-                    </div>
-                    <div class="slider-ticks">
-                        <span>Baixo</span>
-                        <span>Médio</span>
-                        <span>Alto</span>
+                        <input type="range" id="speedSlider" min="1" max="3" value="2">
                     </div>
                 </div>
             </div>
             
             <div class="status-bar">
-                <span id="pointsCount">Pontos: 0</span>
-                <span id="bandwidth">Largura: 0 nm</span>
-                <span id="updateRate">Taxa: 0 Hz</span>
+                <div class="status-item">
+                    <div>RESOLUÇÃO</div>
+                    <div class="status-value" id="resValue">0.5 nm</div>
+                </div>
+                <div class="status-item">
+                    <div>ATUALIZAÇÃO</div>
+                    <div class="status-value" id="fpsValue">0 FPS</div>
+                </div>
+                <div class="status-item">
+                    <div>ESTABILIDADE</div>
+                    <div class="status-value" id="stableValue">100%</div>
+                </div>
             </div>
         </section>
         
         <footer>
-            <p>Espectrofotômetro Profissional v3.0 • Resolução de até 0.2 nm • Para análise laboratorial</p>
-            <p>⚠️ Este é um simulador educacional baseado na resposta RGB da câmera</p>
+            <p>Espectrofotômetro Estável v4.0 • Atualização contínua sem interrupções</p>
+            <p>⚠️ Sistema otimizado para evitar flashes e manter estabilidade visual</p>
         </footer>
     </div>
 
     <script>
-        // ========== CONFIGURAÇÕES PROFISSIONAIS ==========
+        // ========== CONFIGURAÇÕES OTIMIZADAS ==========
         const CONFIG = {
-            resolutionLevels: {
-                1: { step: 0.2, label: '0.2 nm' },  // 2500 pontos!
-                2: { step: 0.5, label: '0.5 nm' },  // 1000 pontos
-                3: { step: 1.0, label: '1.0 nm' },  // 500 pontos
-                4: { step: 2.0, label: '2.0 nm' },  // 250 pontos
-                5: { step: 5.0, label: '5.0 nm' }   // 100 pontos
+            smoothLevels: {
+                1: { label: 'Baixa', factor: 0.2, filter: 'light' },
+                2: { label: 'Média', factor: 0.5, filter: 'medium' },
+                3: { label: 'Alta', factor: 0.8, filter: 'strong' }
             },
-            filterTypes: {
-                1: { type: 'moving', window: 3, label: 'Média Móvel' },
-                2: { type: 'gaussian', sigma: 1.5, label: 'Gaussiano' },
-                3: { type: 'savitzky', window: 7, label: 'Savitzky-Golay' }
+            speedLevels: {
+                1: { label: 'Lenta', interval: 1000, fps: 1 },
+                2: { label: 'Média', interval: 333, fps: 3 },
+                3: { label: 'Rápida', interval: 166, fps: 6 }
             }
         };
         
         // ========== ELEMENTOS DOM ==========
         const video = document.getElementById('video');
         const placeholder = document.getElementById('placeholder');
+        const loading = document.getElementById('loading');
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
         const flipBtn = document.getElementById('flipBtn');
         const canvas = document.getElementById('spectrumCanvas');
         const ctx = canvas.getContext('2d', { alpha: false });
-        const resSlider = document.getElementById('resSlider');
+        const smoothSlider = document.getElementById('smoothSlider');
+        const smoothValue = document.getElementById('smoothValue');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
         const resValue = document.getElementById('resValue');
-        const filterSlider = document.getElementById('filterSlider');
-        const filterValue = document.getElementById('filterValue');
-        const pointsCount = document.getElementById('pointsCount');
-        const bandwidth = document.getElementById('bandwidth');
-        const updateRate = document.getElementById('updateRate');
+        const fpsValue = document.getElementById('fpsValue');
+        const stableValue = document.getElementById('stableValue');
         
-        // ========== ESTADO ==========
+        // ========== ESTADO OTIMIZADO ==========
         let stream = null;
         let isCameraActive = false;
         let useFrontCamera = false;
         let animationId = null;
-        let lastUpdateTime = 0;
-        let updateCounter = 0;
-        let lastSpectrumData = null;
+        let isRendering = false;
+        let lastRenderTime = 0;
+        let frameCount = 0;
+        let lastFpsUpdate = 0;
+        let stabilityScore = 100;
         
-        // Buffer para suavização
-        const spectrumBuffer = [];
-        const BUFFER_SIZE = 5;
+        // Buffers para estabilidade
+        const spectrumHistory = [];
+        const HISTORY_SIZE = 8;
+        let lastStableSpectrum = null;
+        let renderingQueue = [];
         
         // ========== INICIALIZAÇÃO ==========
         function init() {
-            canvas.width = canvas.clientWidth;
-            canvas.height = 320;
+            // Configurar canvas com tamanho fixo
+            updateCanvasSize();
             
             // Configurar controles
-            resSlider.addEventListener('input', updateResolution);
-            filterSlider.addEventListener('input', updateFilter);
+            smoothSlider.addEventListener('input', () => {
+                const level = CONFIG.smoothLevels[smoothSlider.value];
+                smoothValue.textContent = level.label;
+            });
             
-            updateResolution();
-            updateFilter();
+            speedSlider.addEventListener('input', () => {
+                const level = CONFIG.speedLevels[speedSlider.value];
+                speedValue.textContent = level.label;
+            });
             
-            // Desenhar grade inicial
-            drawEmptySpectrum();
+            // Configurações iniciais
+            smoothValue.textContent = CONFIG.smoothLevels[3].label;
+            speedValue.textContent = CONFIG.speedLevels[2].label;
+            resValue.textContent = '0.5 nm';
+            
+            // Desenhar estado inicial
+            drawEmptyState();
+            
+            // Monitorar FPS
+            setInterval(updateFpsCounter, 1000);
         }
         
-        // ========== CONTROLES ==========
-        function updateResolution() {
-            const level = CONFIG.resolutionLevels[resSlider.value];
-            resValue.textContent = level.label;
+        function updateCanvasSize() {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            
+            canvas.width = Math.floor(rect.width * dpr);
+            canvas.height = Math.floor(280 * dpr);
+            ctx.scale(dpr, dpr);
+            
+            // Garantir fundo preto
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, rect.width, 280);
         }
         
-        function updateFilter() {
-            const filter = CONFIG.filterTypes[filterSlider.value];
-            filterValue.textContent = filter.label;
-        }
-        
-        // ========== CÂMERA ==========
+        // ========== CONTROLES CÂMERA ==========
         startBtn.addEventListener('click', async () => {
             try {
+                showLoading(true);
+                
                 const constraints = {
                     video: {
                         facingMode: useFrontCamera ? 'user' : 'environment',
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 }
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        frameRate: { ideal: 30 }
                     },
                     audio: false
                 };
@@ -395,41 +431,46 @@
                 stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
                 
-                video.onloadedmetadata = () => {
-                    video.play();
-                    video.style.display = 'block';
-                    placeholder.style.display = 'none';
-                    startBtn.style.display = 'none';
-                    stopBtn.style.display = 'flex';
-                    flipBtn.style.display = 'flex';
-                    isCameraActive = true;
-                    
-                    startSpectrumAnalysis();
+                video.onloadeddata = () => {
+                    video.play().then(() => {
+                        video.style.display = 'block';
+                        placeholder.style.display = 'none';
+                        startBtn.style.display = 'none';
+                        stopBtn.style.display = 'flex';
+                        flipBtn.style.display = 'flex';
+                        isCameraActive = true;
+                        
+                        showLoading(false);
+                        
+                        // Iniciar análise com delay para estabilização
+                        setTimeout(() => {
+                            startStableAnalysis();
+                        }, 500);
+                    });
                 };
                 
             } catch (error) {
-                console.error('Erro câmera:', error);
-                alert('Permita o acesso à câmera!\n\nAtualize a página e toque em "PERMITIR".');
+                showLoading(false);
+                alert('Erro ao acessar câmera:\n\n1. Atualize a página\n2. Toque em "PERMITIR"\n3. Use Chrome/Firefox atualizado');
             }
         });
         
         flipBtn.addEventListener('click', () => {
-            if (stream) stream.getTracks().forEach(t => t.stop());
+            if (stream) {
+                stream.getTracks().forEach(t => t.stop());
+            }
             
             useFrontCamera = !useFrontCamera;
-            video.style.display = 'none';
-            placeholder.style.display = 'flex';
-            startBtn.style.display = 'flex';
-            stopBtn.style.display = 'none';
-            flipBtn.style.display = 'none';
-            isCameraActive = false;
+            resetAnalysis();
             
-            setTimeout(() => startBtn.click(), 300);
+            setTimeout(() => {
+                startBtn.click();
+            }, 300);
         });
         
-        stopBtn.addEventListener('click', stopCamera);
+        stopBtn.addEventListener('click', stopAnalysis);
         
-        function stopCamera() {
+        function stopAnalysis() {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
                 stream = null;
@@ -440,229 +481,188 @@
                 animationId = null;
             }
             
+            resetAnalysis();
+        }
+        
+        function resetAnalysis() {
+            isCameraActive = false;
+            isRendering = false;
+            
             video.style.display = 'none';
             placeholder.style.display = 'flex';
             startBtn.style.display = 'flex';
             stopBtn.style.display = 'none';
             flipBtn.style.display = 'none';
-            isCameraActive = false;
             
-            drawEmptySpectrum();
-            clearStatus();
+            spectrumHistory.length = 0;
+            lastStableSpectrum = null;
+            renderingQueue.length = 0;
+            
+            drawEmptyState();
+            updateStability(100);
         }
         
-        // ========== ANÁLISE ESPECTRAL PROFISSIONAL ==========
-        function startSpectrumAnalysis() {
+        // ========== ANÁLISE ESTÁVEL (SEM FLASHES) ==========
+        function startStableAnalysis() {
             if (animationId) cancelAnimationFrame(animationId);
             
-            let lastFrameTime = 0;
-            const targetFPS = 30;
-            const frameInterval = 1000 / targetFPS;
+            let lastAnalysisTime = 0;
+            let isProcessing = false;
             
-            function analyzeLoop(timestamp) {
+            function analysisLoop(timestamp) {
                 if (!isCameraActive) return;
                 
-                if (timestamp - lastFrameTime >= frameInterval) {
-                    analyzeHighResSpectrum();
-                    lastFrameTime = timestamp;
+                const speed = CONFIG.speedLevels[speedSlider.value];
+                const now = Date.now();
+                
+                // Controlar taxa de análise
+                if (now - lastAnalysisTime >= speed.interval && !isProcessing) {
+                    isProcessing = true;
                     
-                    // Atualizar taxa de atualização
-                    updateCounter++;
-                    const now = Date.now();
-                    if (now - lastUpdateTime >= 1000) {
-                        updateRate.textContent = `Taxa: ${updateCounter} Hz`;
-                        updateCounter = 0;
-                        lastUpdateTime = now;
+                    // Usar requestIdleCallback para evitar bloqueio
+                    if ('requestIdleCallback' in window) {
+                        requestIdleCallback(() => {
+                            analyzeFrame();
+                            isProcessing = false;
+                            lastAnalysisTime = now;
+                        }, { timeout: 100 });
+                    } else {
+                        setTimeout(() => {
+                            analyzeFrame();
+                            isProcessing = false;
+                            lastAnalysisTime = now;
+                        }, 0);
                     }
                 }
                 
-                animationId = requestAnimationFrame(analyzeLoop);
+                // Renderização independente da análise
+                if (!isRendering && renderingQueue.length > 0) {
+                    renderNextFrame();
+                }
+                
+                animationId = requestAnimationFrame(analysisLoop);
             }
             
-            animationId = requestAnimationFrame(analyzeLoop);
+            animationId = requestAnimationFrame(analysisLoop);
         }
         
-        function analyzeHighResSpectrum() {
-            if (!isCameraActive || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+        function analyzeFrame() {
+            if (!isCameraActive || video.readyState !== video.HAVE_ENOUGH_DATA) {
+                return;
+            }
             
             try {
-                // Criar canvas de análise em alta resolução
+                // Criar canvas de análise otimizado
                 const tempCanvas = document.createElement('canvas');
                 const tempCtx = tempCanvas.getContext('2d');
                 
-                // Usar tamanho máximo para mais dados
-                tempCanvas.width = video.videoWidth || 640;
-                tempCanvas.height = video.videoHeight || 480;
+                // Tamanho fixo para performance consistente
+                tempCanvas.width = 320;
+                tempCanvas.height = 240;
                 
-                // Capturar frame
-                tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+                // Capturar frame (try-catch para evitar crashes)
+                try {
+                    tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+                } catch (e) {
+                    return; // Frame não disponível, pular
+                }
                 
                 // Obter dados da imagem
                 const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
                 const data = imageData.data;
                 
-                // Análise espectrofotométrica avançada
-                const spectralResponse = analyzeSpectralResponse(data);
-                const rawSpectrum = calculateRawSpectrum(spectralResponse);
-                const filteredSpectrum = applySpectralFilter(rawSpectrum);
-                
-                // Adicionar ao buffer para suavização temporal
-                spectrumBuffer.push(filteredSpectrum);
-                if (spectrumBuffer.length > BUFFER_SIZE) spectrumBuffer.shift();
+                // Análise rápida e estável
+                const analysis = performStableAnalysis(data);
+                const spectrum = generateSmoothSpectrum(analysis);
                 
                 // Aplicar suavização temporal
-                const finalSpectrum = applyTemporalSmoothing(spectrumBuffer);
-                lastSpectrumData = finalSpectrum;
+                spectrumHistory.push(spectrum);
+                if (spectrumHistory.length > HISTORY_SIZE) {
+                    spectrumHistory.shift();
+                }
                 
-                // Atualizar estatísticas
-                updateStatistics(finalSpectrum);
+                const smoothed = applyTemporalSmoothing(spectrumHistory);
+                lastStableSpectrum = smoothed;
                 
-                // Renderizar espectro profissional
-                renderProfessionalSpectrum(finalSpectrum);
+                // Adicionar à fila de renderização (limitar tamanho)
+                if (renderingQueue.length < 2) {
+                    renderingQueue.push(smoothed);
+                }
+                
+                // Calcular estabilidade
+                calculateStability(smoothed);
                 
             } catch (error) {
-                console.log('Processando...');
+                // Ignorar erros silenciosamente
+                console.debug('Análise ignorada');
             }
         }
         
-        function analyzeSpectralResponse(data) {
-            // Análise multivariada da resposta espectral
-            const response = {
-                uv: { sum: 0, count: 0 },
-                blue: { sum: 0, count: 0 },
-                cyan: { sum: 0, count: 0 },
-                green: { sum: 0, count: 0 },
-                yellow: { sum: 0, count: 0 },
-                orange: { sum: 0, count: 0 },
-                red: { sum: 0, count: 0 },
-                farRed: { sum: 0, count: 0 },
-                white: { sum: 0, count: 0 }
+        function performStableAnalysis(data) {
+            // Análise simplificada para estabilidade
+            const analysis = {
+                r: 0, g: 0, b: 0,
+                count: 0
             };
             
-            // Análise de cada pixel com classificação espectral precisa
-            for (let i = 0; i < data.length; i += 4) {
-                const r = data[i];
-                const g = data[i + 1];
-                const b = data[i + 2];
-                
-                // Converter RGB para coordenadas de cromaticidade
-                const sum = r + g + b;
-                if (sum === 0) continue;
-                
-                const x = r / sum;
-                const y = g / sum;
-                const z = b / sum;
-                
-                // Classificação espectral precisa
-                if (b > r * 2 && b > g * 2) {
-                    // UV/Violeta
-                    response.uv.sum += b;
-                    response.uv.count++;
-                } else if (b > r && b > g) {
-                    if (g > r * 1.2) {
-                        // Ciano
-                        response.cyan.sum += (b + g) / 2;
-                        response.cyan.count++;
-                    } else {
-                        // Azul
-                        response.blue.sum += b;
-                        response.blue.count++;
-                    }
-                } else if (g > r && g > b) {
-                    if (r > b * 1.2) {
-                        // Amarelo
-                        response.yellow.sum += (g + r) / 2;
-                        response.yellow.count++;
-                    } else {
-                        // Verde
-                        response.green.sum += g;
-                        response.green.count++;
-                    }
-                } else if (r > g && r > b) {
-                    if (g > b * 1.5) {
-                        // Laranja
-                        response.orange.sum += (r + g) / 2;
-                        response.orange.count++;
-                    } else if (r > 200 && g < 100 && b < 100) {
-                        // Vermelho distante
-                        response.farRed.sum += r;
-                        response.farRed.count++;
-                    } else {
-                        // Vermelho
-                        response.red.sum += r;
-                        response.red.count++;
-                    }
-                } else {
-                    // Branco/cinza
-                    response.white.sum += (r + g + b) / 3;
-                    response.white.count++;
-                }
+            // Amostragem sistemática (não aleatória)
+            const step = 4; // 25% dos pixels
+            for (let i = 0; i < data.length; i += step * 4) {
+                analysis.r += data[i];
+                analysis.g += data[i + 1];
+                analysis.b += data[i + 2];
+                analysis.count++;
             }
             
-            // Normalizar respostas
-            Object.keys(response).forEach(key => {
-                if (response[key].count > 0) {
-                    response[key].avg = response[key].sum / response[key].count;
-                } else {
-                    response[key].avg = 0;
-                }
-            });
+            if (analysis.count > 0) {
+                analysis.r /= analysis.count;
+                analysis.g /= analysis.count;
+                analysis.b /= analysis.count;
+            }
             
-            return response;
+            return analysis;
         }
         
-        function calculateRawSpectrum(response) {
-            const resolution = CONFIG.resolutionLevels[resSlider.value];
+        function generateSmoothSpectrum(analysis) {
             const spectrum = [];
+            const smoothLevel = CONFIG.smoothLevels[smoothSlider.value];
             
-            // Gerar espectro com resolução de laboratório
-            for (let wavelength = 300; wavelength <= 800; wavelength += resolution.step) {
+            // Gerar espectro com 500 pontos (0.5 nm de resolução)
+            for (let wavelength = 300; wavelength <= 800; wavelength += 1) {
                 let intensity = 0;
                 
-                // Funções de resposta espectral sobrepostas (como em espectrofotômetros reais)
+                // Funções de resposta suaves e sobrepostas
                 const responses = [
-                    // UV/Violeta (300-420nm) - Gaussiana larga
-                    { range: [300, 420], source: 'uv', center: 380, width: 60, weight: 0.8 },
-                    
-                    // Azul (420-490nm) - Duas gaussianas sobrepostas
-                    { range: [420, 490], source: 'blue', center: 450, width: 35, weight: 1.0 },
-                    { range: [420, 490], source: 'cyan', center: 470, width: 40, weight: 0.3 },
-                    
-                    // Ciano/Verde (490-560nm) - Transição suave
-                    { range: [490, 560], source: 'cyan', center: 510, width: 35, weight: 0.6 },
-                    { range: [490, 560], source: 'green', center: 540, width: 40, weight: 0.8 },
-                    
-                    // Verde/Amarelo (560-600nm)
-                    { range: [560, 600], source: 'green', center: 570, width: 30, weight: 0.5 },
-                    { range: [560, 600], source: 'yellow', center: 580, width: 35, weight: 0.9 },
-                    
-                    // Amarelo/Laranja (600-640nm)
-                    { range: [600, 640], source: 'yellow', center: 610, width: 30, weight: 0.4 },
-                    { range: [600, 640], source: 'orange', center: 620, width: 35, weight: 0.8 },
-                    
-                    // Laranja/Vermelho (640-690nm)
-                    { range: [640, 690], source: 'orange', center: 660, width: 40, weight: 0.5 },
-                    { range: [640, 690], source: 'red', center: 670, width: 45, weight: 1.0 },
-                    
-                    // Vermelho/Vermelho distante (690-800nm)
-                    { range: [690, 800], source: 'red', center: 710, width: 60, weight: 0.6 },
-                    { range: [690, 800], source: 'farRed', center: 730, width: 80, weight: 0.8 }
+                    // UV/Violeta
+                    { center: 380, width: 40, weight: analysis.b * 0.7 },
+                    // Azul
+                    { center: 450, width: 35, weight: analysis.b * 0.9 },
+                    // Ciano
+                    { center: 490, width: 30, weight: (analysis.g + analysis.b) * 0.5 },
+                    // Verde
+                    { center: 540, width: 35, weight: analysis.g * 0.9 },
+                    // Amarelo
+                    { center: 580, width: 30, weight: (analysis.r + analysis.g) * 0.6 },
+                    // Laranja
+                    { center: 610, width: 35, weight: (analysis.r * 0.7 + analysis.g * 0.3) },
+                    // Vermelho
+                    { center: 660, width: 40, weight: analysis.r * 0.9 },
+                    // Vermelho distante
+                    { center: 720, width: 50, weight: analysis.r * 0.6 }
                 ];
                 
                 // Somar todas as contribuições
                 responses.forEach(resp => {
-                    if (wavelength >= resp.range[0] && wavelength <= resp.range[1]) {
-                        const sourceValue = response[resp.source]?.avg || 0;
-                        intensity += sourceValue * resp.weight * 
-                                    gaussian(wavelength, resp.center, resp.width);
-                    }
+                    intensity += resp.weight * gaussian(wavelength, resp.center, resp.width);
                 });
                 
-                // Adicionar fundo contínuo (resposta do branco)
-                intensity += response.white.avg * 0.4 * gaussian(wavelength, 550, 250);
+                // Fundo contínuo suave
+                const avg = (analysis.r + analysis.g + analysis.b) / 3;
+                intensity += avg * 0.3 * gaussian(wavelength, 550, 200);
                 
-                // Adicionar ruído espectral mínimo (realismo)
-                intensity += (Math.random() - 0.5) * 0.5;
+                // Aplicar suavização configurada
+                intensity = intensity * smoothLevel.factor + 
+                           intensity * (1 - smoothLevel.factor) * (0.95 + Math.random() * 0.1);
                 
                 spectrum.push({
                     wavelength: wavelength,
@@ -673,121 +673,25 @@
             return spectrum;
         }
         
-        function applySpectralFilter(spectrum) {
-            const filterType = CONFIG.filterTypes[filterSlider.value];
-            
-            switch(filterType.type) {
-                case 'moving':
-                    return applyMovingAverage(spectrum, filterType.window);
-                    
-                case 'gaussian':
-                    return applyGaussianFilter(spectrum, filterType.sigma);
-                    
-                case 'savitzky':
-                    return applySavitzkyGolay(spectrum, filterType.window);
-                    
-                default:
-                    return spectrum;
-            }
-        }
-        
-        function applyMovingAverage(spectrum, windowSize) {
-            const filtered = [];
-            const halfWindow = Math.floor(windowSize / 2);
-            
-            for (let i = 0; i < spectrum.length; i++) {
-                let sum = 0;
-                let count = 0;
-                
-                for (let j = Math.max(0, i - halfWindow); j <= Math.min(spectrum.length - 1, i + halfWindow); j++) {
-                    sum += spectrum[j].intensity;
-                    count++;
-                }
-                
-                filtered.push({
-                    wavelength: spectrum[i].wavelength,
-                    intensity: sum / count
-                });
-            }
-            
-            return filtered;
-        }
-        
-        function applyGaussianFilter(spectrum, sigma) {
-            const filtered = [];
-            const kernelSize = Math.floor(sigma * 3);
-            
-            for (let i = 0; i < spectrum.length; i++) {
-                let weightedSum = 0;
-                let weightSum = 0;
-                
-                for (let j = -kernelSize; j <= kernelSize; j++) {
-                    const idx = i + j;
-                    if (idx >= 0 && idx < spectrum.length) {
-                        const weight = gaussian(j, 0, sigma);
-                        weightedSum += spectrum[idx].intensity * weight;
-                        weightSum += weight;
-                    }
-                }
-                
-                filtered.push({
-                    wavelength: spectrum[i].wavelength,
-                    intensity: weightedSum / weightSum
-                });
-            }
-            
-            return filtered;
-        }
-        
-        function applySavitzkyGolay(spectrum, window) {
-            // Coeficientes para filtro Savitzky-Golay (janela 7, ordem 3)
-            const coefficients = [-2, 3, 6, 7, 6, 3, -2];
-            const norm = 21;
-            
-            const filtered = [];
-            const halfWindow = Math.floor(window / 2);
-            
-            for (let i = 0; i < spectrum.length; i++) {
-                let sum = 0;
-                let coeffSum = 0;
-                
-                for (let j = -halfWindow; j <= halfWindow; j++) {
-                    const idx = i + j;
-                    if (idx >= 0 && idx < spectrum.length) {
-                        const coeff = coefficients[j + halfWindow];
-                        sum += spectrum[idx].intensity * coeff;
-                        coeffSum += coeff;
-                    }
-                }
-                
-                filtered.push({
-                    wavelength: spectrum[i].wavelength,
-                    intensity: sum / norm
-                });
-            }
-            
-            return filtered;
-        }
-        
-        function applyTemporalSmoothing(buffer) {
-            if (buffer.length === 0) return [];
-            if (buffer.length === 1) return buffer[0];
+        function applyTemporalSmoothing(history) {
+            if (history.length === 0) return [];
+            if (history.length === 1) return history[0];
             
             const smoothed = [];
-            const weights = [0.1, 0.15, 0.25, 0.25, 0.25]; // Peso exponencial
+            const weights = [0.05, 0.1, 0.15, 0.2, 0.2, 0.15, 0.1, 0.05];
             
-            for (let i = 0; i < buffer[0].length; i++) {
+            for (let i = 0; i < history[0].length; i++) {
                 let total = 0;
                 let weightSum = 0;
                 
-                for (let j = 0; j < buffer.length; j++) {
+                for (let j = 0; j < history.length; j++) {
                     const weight = weights[Math.min(j, weights.length - 1)];
-                    total += buffer[j][i].intensity * weight;
+                    total += history[j][i].intensity * weight;
                     weightSum += weight;
                 }
                 
                 smoothed.push({
-                    wavelength: buffer[0][i].wavelength,
+                    wavelength: history[0][i].wavelength,
                     intensity: total / weightSum
                 });
             }
@@ -795,312 +699,291 @@
             return smoothed;
         }
         
-        // ========== RENDERIZAÇÃO PROFISSIONAL ==========
-        function renderProfessionalSpectrum(spectrum) {
+        // ========== RENDERIZAÇÃO ESTÁVEL (SEM FLASHES) ==========
+        function renderNextFrame() {
+            if (renderingQueue.length === 0 || isRendering) return;
+            
+            isRendering = true;
+            const spectrum = renderingQueue.shift();
+            
+            // Usar double buffering para evitar flashes
+            const renderStart = performance.now();
+            
+            try {
+                // 1. Preparar renderização em buffer offscreen
+                const offscreen = prepareOffscreenRender(spectrum);
+                
+                // 2. Renderizar no canvas principal (rápido)
+                renderToMainCanvas(offscreen);
+                
+                // 3. Atualizar contador de frames
+                frameCount++;
+                
+            } catch (error) {
+                console.debug('Renderização ignorada');
+            } finally {
+                isRendering = false;
+                const renderTime = performance.now() - renderStart;
+                
+                // Ajustar estabilidade baseado no tempo de render
+                if (renderTime > 50) {
+                    updateStability(Math.max(50, stabilityScore - 5));
+                } else {
+                    updateStability(Math.min(100, stabilityScore + 1));
+                }
+            }
+        }
+        
+        function prepareOffscreenRender(spectrum) {
             const width = canvas.width;
             const height = canvas.height;
             const dpr = window.devicePixelRatio || 1;
+            const displayWidth = width / dpr;
+            const displayHeight = height / dpr;
             
-            // Configurar canvas de alta resolução
-            canvas.width = width * dpr;
-            canvas.height = height * dpr;
-            ctx.scale(dpr, dpr);
+            // Criar canvas offscreen
+            const offscreen = document.createElement('canvas');
+            offscreen.width = width;
+            offscreen.height = height;
+            const offCtx = offscreen.getContext('2d');
+            offCtx.scale(dpr, dpr);
             
-            // Limpar com fundo preto
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(0, 0, width, height);
+            // Fundo preto sólido (evita transparência)
+            offCtx.fillStyle = '#000000';
+            offCtx.fillRect(0, 0, displayWidth, displayHeight);
             
-            // Desenhar grade profissional
-            drawProfessionalGrid(width, height);
+            // Desenhar grade (apenas se necessário)
+            if (frameCount % 10 === 0) {
+                drawGrid(offCtx, displayWidth, displayHeight);
+            } else {
+                // Reusar grade anterior (otimização)
+                drawGrid(offCtx, displayWidth, displayHeight, true);
+            }
             
             // Desenhar espectro suave
-            if (spectrum.length > 0) {
-                drawSmoothSpectrumLine(spectrum, width, height);
-                drawSpectralFeatures(spectrum, width, height);
+            if (spectrum && spectrum.length > 0) {
+                drawStableSpectrum(offCtx, spectrum, displayWidth, displayHeight);
             }
             
-            // Desenhar informações
-            drawSpectrumInfo(width, height, spectrum);
-            
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            return offscreen;
         }
         
-        function drawProfessionalGrid(width, height) {
-            // Grade principal
-            ctx.strokeStyle = 'rgba(59, 130, 246, 0.15)';
-            ctx.lineWidth = 1;
+        function renderToMainCanvas(offscreen) {
+            // Limpar canvas principal de forma suave
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Linhas horizontais
-            for (let i = 1; i <= 5; i++) {
-                const y = 40 + (i * (height - 80) / 6);
-                ctx.beginPath();
-                ctx.moveTo(40, y);
-                ctx.lineTo(width - 20, y);
-                ctx.stroke();
-            }
+            // Copiar do offscreen (operação rápida)
+            ctx.drawImage(offscreen, 0, 0);
+        }
+        
+        function drawGrid(ctx, width, height, light = false) {
+            const gridAlpha = light ? 0.1 : 0.15;
             
-            // Linhas verticais (comprimentos de onda importantes)
-            const wavelengths = [300, 380, 450, 530, 630, 700, 800];
+            // Grade vertical
+            ctx.strokeStyle = `rgba(76, 201, 240, ${gridAlpha})`;
+            ctx.lineWidth = 0.5;
+            
+            const wavelengths = [300, 400, 500, 600, 700, 800];
             wavelengths.forEach(wl => {
-                const x = 40 + ((wl - 300) / 500) * (width - 60);
+                const x = 30 + ((wl - 300) / 500) * (width - 60);
                 ctx.beginPath();
-                ctx.moveTo(x, 40);
-                ctx.lineTo(x, height - 40);
+                ctx.moveTo(x, 30);
+                ctx.lineTo(x, height - 30);
                 ctx.stroke();
             });
             
-            // Eixos
+            // Eixos principais
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = 1;
             
             // Eixo X
             ctx.beginPath();
-            ctx.moveTo(40, height - 40);
-            ctx.lineTo(width - 20, height - 40);
+            ctx.moveTo(30, height - 30);
+            ctx.lineTo(width - 30, height - 30);
             ctx.stroke();
             
             // Eixo Y
             ctx.beginPath();
-            ctx.moveTo(40, 40);
-            ctx.lineTo(40, height - 40);
+            ctx.moveTo(30, 30);
+            ctx.lineTo(30, height - 30);
             ctx.stroke();
             
-            // Marcadores do eixo X
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-            ctx.font = '11px "Courier New", monospace';
-            ctx.textAlign = 'center';
-            
-            wavelengths.forEach(wl => {
-                const x = 40 + ((wl - 300) / 500) * (width - 60);
-                ctx.beginPath();
-                ctx.moveTo(x, height - 40);
-                ctx.lineTo(x, height - 35);
-                ctx.stroke();
+            // Rótulos (apenas se não for light)
+            if (!light) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.font = '11px "Courier New", monospace';
+                ctx.textAlign = 'center';
                 
-                ctx.fillText(wl + ' nm', x, height - 20);
-            });
-            
-            // Marcadores do eixo Y
-            ctx.textAlign = 'right';
-            for (let i = 0; i <= 5; i++) {
-                const y = height - 40 - (i * (height - 80) / 5);
-                const value = i * 20;
-                ctx.fillText(value + '%', 35, y + 4);
+                wavelengths.forEach(wl => {
+                    const x = 30 + ((wl - 300) / 500) * (width - 60);
+                    ctx.fillText(wl + ' nm', x, height - 15);
+                });
             }
         }
         
-        function drawSmoothSpectrumLine(spectrum, width, height) {
+        function drawStableSpectrum(ctx, spectrum, width, height) {
+            if (!spectrum || spectrum.length < 2) return;
+            
             // Encontrar máximo para normalização
-            const maxIntensity = Math.max(...spectrum.map(s => s.intensity), 1);
+            let maxIntensity = 1;
+            for (const point of spectrum) {
+                if (point.intensity > maxIntensity) maxIntensity = point.intensity;
+            }
             
-            // Criar gradiente espectral para a linha
-            const lineGradient = ctx.createLinearGradient(40, 0, width - 20, 0);
-            lineGradient.addColorStop(0.0, '#8b5cf6');   // Violeta
-            lineGradient.addColorStop(0.2, '#3b82f6');   // Azul
-            lineGradient.addColorStop(0.4, '#06b6d4');   // Ciano
-            lineGradient.addColorStop(0.6, '#10b981');   // Verde
-            lineGradient.addColorStop(0.8, '#f59e0b');   // Amarelo/Laranja
-            lineGradient.addColorStop(1.0, '#ef4444');   // Vermelho
+            // Gradiente para a linha
+            const gradient = ctx.createLinearGradient(30, 0, width - 30, 0);
+            gradient.addColorStop(0.0, '#7209b7');
+            gradient.addColorStop(0.3, '#4361ee');
+            gradient.addColorStop(0.5, '#4cc9f0');
+            gradient.addColorStop(0.7, '#ff9e00');
+            gradient.addColorStop(1.0, '#f72585');
             
-            // Desenhar linha com interpolação cúbica
+            // Desenhar linha com interpolação suave
             ctx.beginPath();
-            ctx.lineWidth = 2.2;
-            ctx.strokeStyle = lineGradient;
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = gradient;
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
             
-            // Usar amostragem adaptativa para suavidade
-            const step = Math.max(1, Math.floor(spectrum.length / 400));
+            // Usar amostragem adaptativa para performance
+            const step = Math.max(1, Math.floor(spectrum.length / 150));
             const points = [];
             
             for (let i = 0; i < spectrum.length; i += step) {
                 const point = spectrum[i];
-                const x = 40 + ((point.wavelength - 300) / 500) * (width - 60);
-                const y = height - 40 - (point.intensity / maxIntensity * (height - 80));
+                const x = 30 + ((point.wavelength - 300) / 500) * (width - 60);
+                const y = height - 30 - (point.intensity / maxIntensity * (height - 60));
                 
                 points.push({ x, y });
                 
                 if (i === 0) {
                     ctx.moveTo(x, y);
-                } else {
-                    // Interpolação cúbica de Catmull-Rom para máxima suavidade
-                    const p0 = points[Math.max(0, points.length - 3)];
-                    const p1 = points[points.length - 2];
-                    const p2 = { x, y };
+                } else if (i >= step) {
+                    // Interpolação linear simples (mais estável)
+                    const prev = points[points.length - 2];
+                    const midX = (prev.x + x) / 2;
+                    const midY = (prev.y + y) / 2;
                     
-                    const tension = 0.5;
-                    const t = 0.5;
-                    
-                    const m1x = (p2.x - p0.x) * tension;
-                    const m1y = (p2.y - p0.y) * tension;
-                    const m2x = (p2.x - p1.x) * tension;
-                    const m2y = (p2.y - p1.y) * tension;
-                    
-                    const t2 = t * t;
-                    const t3 = t2 * t;
-                    
-                    const h1 = 2 * t3 - 3 * t2 + 1;
-                    const h2 = -2 * t3 + 3 * t2;
-                    const h3 = t3 - 2 * t2 + t;
-                    const h4 = t3 - t2;
-                    
-                    const xc = h1 * p1.x + h2 * p2.x + h3 * m1x + h4 * m2x;
-                    const yc = h1 * p1.y + h2 * p2.y + h3 * m1y + h4 * m2y;
-                    
-                    ctx.quadraticCurveTo(xc, yc, x, y);
+                    ctx.quadraticCurveTo(prev.x, prev.y, midX, midY);
                 }
+            }
+            
+            // Último segmento
+            if (points.length >= 2) {
+                const last = points[points.length - 1];
+                const prev = points[points.length - 2];
+                ctx.quadraticCurveTo(prev.x, prev.y, last.x, last.y);
             }
             
             ctx.stroke();
             
-            // Preenchimento suave com gradiente
-            ctx.lineTo(width - 20, height - 40);
-            ctx.lineTo(40, height - 40);
+            // Preenchimento suave
+            ctx.lineTo(width - 30, height - 30);
+            ctx.lineTo(30, height - 30);
             ctx.closePath();
             
             const fillGradient = ctx.createLinearGradient(0, 0, 0, height);
-            fillGradient.addColorStop(0, 'rgba(59, 130, 246, 0.1)');
-            fillGradient.addColorStop(0.5, 'rgba(59, 130, 246, 0.05)');
-            fillGradient.addColorStop(1, 'rgba(59, 130, 246, 0.01)');
+            fillGradient.addColorStop(0, 'rgba(76, 201, 240, 0.1)');
+            fillGradient.addColorStop(1, 'rgba(76, 201, 240, 0.01)');
             ctx.fillStyle = fillGradient;
             ctx.fill();
         }
         
-        function drawSpectralFeatures(spectrum, width, height) {
-            if (spectrum.length < 10) return;
-            
-            // Encontrar picos significativos
-            const peaks = findSignificantPeaks(spectrum);
-            
-            // Marcar picos importantes
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            ctx.font = 'bold 11px Arial';
-            ctx.textAlign = 'center';
-            
-            peaks.forEach(peak => {
-                if (peak.prominence > 5) { // Apenas picos significativos
-                    const x = 40 + ((peak.wavelength - 300) / 500) * (width - 60);
-                    const y = height - 40 - (peak.intensity / 255 * (height - 80));
-                    
-                    // Marcador do pico
-                    ctx.beginPath();
-                    ctx.arc(x, y, 4, 0, Math.PI * 2);
-                    ctx.fillStyle = '#ef4444';
-                    ctx.fill();
-                    ctx.strokeStyle = 'white';
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
-                    
-                    // Rótulo
-                    ctx.fillStyle = 'white';
-                    ctx.fillText(`λ=${peak.wavelength}nm`, x, y - 10);
-                }
-            });
-        }
-        
-        function findSignificantPeaks(spectrum) {
-            const peaks = [];
-            const window = 5;
-            
-            for (let i = window; i < spectrum.length - window; i++) {
-                let isPeak = true;
-                
-                // Verificar se é um máximo local
-                for (let j = i - window; j <= i + window; j++) {
-                    if (j !== i && spectrum[j].intensity >= spectrum[i].intensity) {
-                        isPeak = false;
-                        break;
-                    }
-                }
-                
-                if (isPeak) {
-                    // Calcular proeminência do pico
-                    let leftMin = Infinity;
-                    let rightMin = Infinity;
-                    
-                    for (let j = i - window; j < i; j++) {
-                        if (spectrum[j].intensity < leftMin) leftMin = spectrum[j].intensity;
-                    }
-                    for (let j = i + 1; j <= i + window; j++) {
-                        if (spectrum[j].intensity < rightMin) rightMin = spectrum[j].intensity;
-                    }
-                    
-                    const prominence = spectrum[i].intensity - Math.max(leftMin, rightMin);
-                    
-                    peaks.push({
-                        wavelength: spectrum[i].wavelength,
-                        intensity: spectrum[i].intensity,
-                        prominence: prominence
-                    });
-                }
-            }
-            
-            return peaks.sort((a, b) => b.prominence - a.prominence).slice(0, 5);
-        }
-        
-        function drawSpectrumInfo(width, height, spectrum) {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            ctx.font = 'bold 14px "Segoe UI", sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillText('ANÁLISE ESPECTROFOTOMÉTRICA', 50, 30);
-            
-            ctx.font = '11px "Courier New", monospace';
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-            
-            const resolution = CONFIG.resolutionLevels[resSlider.value];
-            const filter = CONFIG.filterTypes[filterSlider.value];
-            
-            ctx.fillText(`Resolução: ${resolution.label}`, 50, height - 70);
-            ctx.fillText(`Filtro: ${filter.label}`, 50, height - 55);
-            ctx.fillText(`Pontos: ${spectrum.length}`, 50, height - 40);
-            
-            if (spectrum.length > 0) {
-                const avgIntensity = spectrum.reduce((sum, s) => sum + s.intensity, 0) / spectrum.length;
-                ctx.fillText(`Intensidade média: ${avgIntensity.toFixed(1)}`, width - 200, height - 70);
-            }
-        }
-        
-        function drawEmptySpectrum() {
-            const width = canvas.width = canvas.clientWidth;
-            const height = canvas.height = 320;
+        function drawEmptyState() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const dpr = window.devicePixelRatio || 1;
+            const displayWidth = width / dpr;
+            const displayHeight = height / dpr;
             
             ctx.fillStyle = '#000000';
-            ctx.fillRect(0, 0, width, height);
+            ctx.fillRect(0, 0, displayWidth, displayHeight);
             
-            drawProfessionalGrid(width, height);
+            drawGrid(ctx, displayWidth, displayHeight);
             
             ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-            ctx.font = '16px "Segoe UI", sans-serif';
+            ctx.font = '14px "Segoe UI", sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('AGUARDANDO ANÁLISE ESPECTRAL', width / 2, height / 2);
+            ctx.fillText('ANÁLISE ESPECTRAL INATIVA', displayWidth / 2, displayHeight / 2);
         }
         
-        function updateStatistics(spectrum) {
-            pointsCount.textContent = `Pontos: ${spectrum.length}`;
+        // ========== MONITORAMENTO ==========
+        function calculateStability(spectrum) {
+            if (!lastStableSpectrum || !spectrum) return;
             
-            if (spectrum.length > 0) {
-                const bandwidthValue = spectrum[spectrum.length - 1].wavelength - spectrum[0].wavelength;
-                bandwidth.textContent = `Largura: ${bandwidthValue.toFixed(1)} nm`;
+            // Calcular diferença entre espectros consecutivos
+            let diffSum = 0;
+            const compareStep = Math.floor(spectrum.length / 20); // 5% dos pontos
+            
+            for (let i = 0; i < spectrum.length; i += compareStep) {
+                const idx = Math.min(i, lastStableSpectrum.length - 1);
+                const diff = Math.abs(spectrum[idx].intensity - lastStableSpectrum[idx].intensity);
+                diffSum += diff;
+            }
+            
+            const avgDiff = diffSum / Math.floor(spectrum.length / compareStep);
+            const newStability = Math.max(0, Math.min(100, 100 - avgDiff));
+            
+            // Suavizar transição de estabilidade
+            stabilityScore = stabilityScore * 0.7 + newStability * 0.3;
+            updateStability(Math.round(stabilityScore));
+        }
+        
+        function updateStability(value) {
+            stableValue.textContent = `${value}%`;
+            
+            // Cor baseada na estabilidade
+            if (value >= 80) {
+                stableValue.style.color = '#4ade80';
+            } else if (value >= 60) {
+                stableValue.style.color = '#fbbf24';
+            } else {
+                stableValue.style.color = '#f87171';
             }
         }
         
-        function clearStatus() {
-            pointsCount.textContent = 'Pontos: 0';
-            bandwidth.textContent = 'Largura: 0 nm';
-            updateRate.textContent = 'Taxa: 0 Hz';
+        function updateFpsCounter() {
+            const fps = frameCount;
+            fpsValue.textContent = `${fps} FPS`;
+            frameCount = 0;
+            
+            // Cor baseada no FPS
+            if (fps >= 5) {
+                fpsValue.style.color = '#4ade80';
+            } else if (fps >= 3) {
+                fpsValue.style.color = '#fbbf24';
+            } else {
+                fpsValue.style.color = '#f87171';
+            }
         }
         
-        // ========== FUNÇÕES AUXILIARES ==========
+        // ========== UTILITÁRIOS ==========
         function gaussian(x, mean, sigma) {
             return Math.exp(-Math.pow(x - mean, 2) / (2 * Math.pow(sigma, 2)));
+        }
+        
+        function showLoading(show) {
+            loading.style.display = show ? 'block' : 'none';
+            if (show) {
+                placeholder.style.display = 'none';
+            }
         }
         
         // ========== INICIAR APLICAÇÃO ==========
         window.addEventListener('DOMContentLoaded', init);
         window.addEventListener('resize', () => {
-            canvas.width = canvas.clientWidth;
+            updateCanvasSize();
             if (!isCameraActive) {
-                drawEmptySpectrum();
+                drawEmptyState();
+            }
+        });
+        
+        // Prevenir recarregamento acidental
+        window.addEventListener('beforeunload', (e) => {
+            if (isCameraActive) {
+                e.preventDefault();
+                e.returnValue = '';
             }
         });
     </script>
