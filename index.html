@@ -541,29 +541,12 @@
             </div>
         </section>
         
-        <!-- Seção de análise do zoom -->
-        <div class="zoom-analysis-section" id="zoomAnalysisSection">
-            <div class="zoom-analysis-header">
-                <div class="zoom-analysis-title">
-                    <span style="font-size: 16px;">🔍</span>
-                    ANÁLISE DA REGIÃO COM ZOOM
-                </div>
-                <div class="zoom-info" id="zoomInfo">
-                    Zoom: <span id="currentZoomValue">1.0x</span>
-                </div>
-            </div>
-            
+        <!-- Seção principal do espectro (SEMPRE VISÍVEL) -->
+        <section class="spectrum-section">
             <div class="chart-container">
                 <canvas id="spectrumCanvas"></canvas>
             </div>
             
-            <div class="zoom-metrics" id="zoomMetrics">
-                <!-- Métricas do zoom serão preenchidas via JavaScript -->
-            </div>
-        </div>
-        
-        <!-- Seção de análise geral -->
-        <section class="spectrum-section">
             <div class="status-bar">
                 <div class="status-item">
                     <div>RESOLUÇÃO</div>
@@ -606,9 +589,26 @@
             </div>
         </section>
         
+        <!-- Seção de análise do zoom (APENAS QUANDO ZOOM > 1x) -->
+        <div class="zoom-analysis-section" id="zoomAnalysisSection">
+            <div class="zoom-analysis-header">
+                <div class="zoom-analysis-title">
+                    <span style="font-size: 16px;">🔍</span>
+                    ANÁLISE DA REGIÃO COM ZOOM
+                </div>
+                <div class="zoom-info" id="zoomInfo">
+                    Zoom: <span id="currentZoomValue">1.0x</span>
+                </div>
+            </div>
+            
+            <div class="zoom-metrics" id="zoomMetrics">
+                <!-- Métricas do zoom serão preenchidas via JavaScript -->
+            </div>
+        </div>
+        
         <footer>
-            <p>Espectrofotômetro v8.1 • Zoom da câmera nativo • Análise da região central</p>
-            <p>⚡ Use os botões + e - para controlar o zoom</p>
+            <p>Espectrofotômetro v8.2 • Zoom da câmera nativo • Análise da região central</p>
+            <p>⚡ Gráfico do espectro sempre visível • Zoom complementar</p>
         </footer>
     </div>
 
@@ -765,12 +765,15 @@
                     });
                 }
                 
-                // Mostrar seção de análise de zoom se zoom > 1x
+                // Mostrar seção de análise de zoom apenas se zoom > 1x
                 if (currentZoom > 1.0) {
                     zoomAnalysisSection.style.display = 'block';
                 } else {
                     zoomAnalysisSection.style.display = 'none';
                 }
+                
+                // O GRÁFICO DO ESPECTRO SEMPRE FICA VISÍVEL
+                // NÃO PRECISA SER ESCONDIDO
                 
             } catch (error) {
                 console.log('Erro ao ajustar zoom:', error);
@@ -961,15 +964,10 @@
                 // Desenhar vídeo no canvas
                 tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
                 
-                // Se há zoom, analisar apenas a região central
-                if (currentZoom > 1.0) {
-                    analyzeZoomedRegion(tempCtx, tempCanvas.width, tempCanvas.height);
-                }
-                
                 const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
                 const data = imageData.data;
                 
-                // Análise geral
+                // Análise geral (sempre acontece)
                 const analysis = analyzeImage(data);
                 const spectrum = generateSpectrum(analysis);
                 
@@ -979,7 +977,12 @@
                 const smoothed = applyTemporalSmoothing(spectrumHistory);
                 currentSpectrum = smoothed;
                 
-                // Renderizar
+                // Se há zoom, analisar também a região central
+                if (currentZoom > 1.0) {
+                    analyzeZoomedRegion(tempCtx, tempCanvas.width, tempCanvas.height);
+                }
+                
+                // SEMPRE renderizar o espectro principal
                 renderSpectrum(smoothed);
                 
                 frameCount++;
