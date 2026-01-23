@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espectrômetro HD</title>
+    <title>Espectrofotômetro Profissional</title>
     <style>
         * {
             margin: 0;
@@ -29,31 +29,41 @@
             text-align: center;
             padding: 20px;
             margin-bottom: 20px;
-            background: linear-gradient(135deg, #1a237e, #311b92);
+            background: linear-gradient(135deg, #0a1931, #1a1a2e);
             border-radius: 15px;
+            border: 1px solid #1e3a8a;
         }
         
         h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
-            color: #64b5f6;
+            font-size: 22px;
+            margin-bottom: 5px;
+            color: #3b82f6;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            font-size: 13px;
+            opacity: 0.9;
+            color: #93c5fd;
         }
         
         .video-section {
-            background: rgba(30, 30, 40, 0.8);
+            background: rgba(15, 23, 42, 0.9);
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
+            border: 1px solid #1e40af;
         }
         
         .video-container {
             width: 100%;
-            height: 200px;
+            height: 180px;
             background: #000;
             border-radius: 10px;
             margin-bottom: 15px;
             position: relative;
             overflow: hidden;
+            border: 1px solid #334155;
         }
         
         #video {
@@ -73,41 +83,62 @@
             justify-content: center;
             text-align: center;
             padding: 20px;
+            background: #0f172a;
         }
         
         .controls {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-top: 15px;
         }
         
         button {
             flex: 1;
-            padding: 15px;
+            padding: 14px;
             border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
         
-        button:active { transform: scale(0.95); }
+        button:active { transform: scale(0.97); }
         
-        #startBtn { background: #2196F3; color: white; }
-        #stopBtn { background: #f44336; color: white; display: none; }
+        #startBtn { 
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: white;
+        }
+        
+        #stopBtn { 
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            display: none;
+        }
+        
+        #flipBtn { 
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: white;
+            display: none;
+        }
         
         .spectrum-section {
-            background: rgba(30, 30, 40, 0.8);
+            background: rgba(15, 23, 42, 0.9);
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
+            border: 1px solid #1e40af;
         }
         
         .chart-container {
             width: 100%;
-            height: 350px;
-            margin-bottom: 20px;
+            height: 320px;
+            margin-bottom: 15px;
+            position: relative;
         }
         
         #spectrumCanvas {
@@ -115,76 +146,112 @@
             height: 100%;
             background: #000;
             border-radius: 10px;
-            border: 1px solid #333;
+            border: 1px solid #334155;
         }
         
-        .quality-control {
-            background: rgba(255, 255, 255, 0.05);
+        .resolution-control {
+            background: rgba(30, 41, 59, 0.8);
             padding: 15px;
             border-radius: 10px;
             margin-top: 15px;
         }
         
-        .slider-container {
-            margin: 10px 0;
+        .control-group {
+            margin-bottom: 15px;
         }
         
-        .slider-label {
+        .control-label {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-size: 14px;
+            color: #cbd5e1;
+        }
+        
+        .slider-container {
+            position: relative;
+            height: 30px;
         }
         
         input[type="range"] {
             width: 100%;
             height: 6px;
             -webkit-appearance: none;
-            background: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(90deg, #1e40af, #3b82f6);
             border-radius: 3px;
+            outline: none;
         }
         
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
-            background: #2196F3;
+            background: white;
+            border: 2px solid #3b82f6;
             cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .slider-ticks {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        
+        .status-bar {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            color: #cbd5e1;
         }
         
         footer {
             text-align: center;
             padding: 20px;
-            font-size: 12px;
-            color: #888;
+            font-size: 11px;
+            color: #64748b;
         }
         
         @media (max-width: 480px) {
             .controls { flex-direction: column; }
-            .chart-container { height: 300px; }
+            .chart-container { height: 280px; }
+            .video-container { height: 160px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🔬 Espectrômetro HD</h1>
-            <p>Alta resolução - Análise suave do espectro</p>
+            <h1>🔬 ESPECTROFOTÔMETRO PROFISSIONAL</h1>
+            <p class="subtitle">Resolução de laboratório • Análise espectrofotométrica</p>
         </header>
         
         <section class="video-section">
             <div class="video-container">
                 <div id="placeholder">
-                    <div style="font-size: 48px; margin-bottom: 10px;">📱</div>
-                    <p>Toque em INICIAR CÂMERA</p>
+                    <div style="font-size: 36px; margin-bottom: 10px; color: #3b82f6;">📡</div>
+                    <p style="color: #cbd5e1;">Pronto para análise espectrofotométrica</p>
                 </div>
                 <video id="video" autoplay playsinline muted></video>
             </div>
             
             <div class="controls">
-                <button id="startBtn">▶ INICIAR CÂMERA</button>
-                <button id="stopBtn">⏹ PARAR CÂMERA</button>
+                <button id="startBtn">
+                    <span style="font-size: 16px;">▶</span> INICIAR CÂMERA
+                </button>
+                <button id="stopBtn">
+                    <span style="font-size: 16px;">⏹</span> PARAR
+                </button>
+                <button id="flipBtn">
+                    <span style="font-size: 16px;">🔄</span> VIRAR
+                </button>
             </div>
         </section>
         
@@ -193,81 +260,135 @@
                 <canvas id="spectrumCanvas"></canvas>
             </div>
             
-            <div class="quality-control">
-                <div class="slider-container">
-                    <div class="slider-label">
-                        <span>📊 Suavização do Espectro</span>
-                        <span id="smoothValue">Alta</span>
+            <div class="resolution-control">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>📊 RESOLUÇÃO ESPECTRAL</span>
+                        <span id="resValue">0.5 nm</span>
                     </div>
-                    <input type="range" id="smoothSlider" min="1" max="3" value="3">
+                    <div class="slider-container">
+                        <input type="range" id="resSlider" min="1" max="5" value="1">
+                    </div>
+                    <div class="slider-ticks">
+                        <span>0.2 nm</span>
+                        <span>0.5 nm</span>
+                        <span>1.0 nm</span>
+                        <span>2.0 nm</span>
+                        <span>5.0 nm</span>
+                    </div>
                 </div>
                 
-                <div class="slider-container">
-                    <div class="slider-label">
-                        <span>⚡ Velocidade de Atualização</span>
-                        <span id="speedValue">Normal</span>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>⚡ FILTRO DE SUAVIZAÇÃO</span>
+                        <span id="filterValue">Gaussiano</span>
                     </div>
-                    <input type="range" id="speedSlider" min="1" max="3" value="2">
+                    <div class="slider-container">
+                        <input type="range" id="filterSlider" min="1" max="3" value="2">
+                    </div>
+                    <div class="slider-ticks">
+                        <span>Baixo</span>
+                        <span>Médio</span>
+                        <span>Alto</span>
+                    </div>
                 </div>
+            </div>
+            
+            <div class="status-bar">
+                <span id="pointsCount">Pontos: 0</span>
+                <span id="bandwidth">Largura: 0 nm</span>
+                <span id="updateRate">Taxa: 0 Hz</span>
             </div>
         </section>
         
         <footer>
-            <p>Espectrômetro HD v2.0 - Resolução otimizada para análise contínua</p>
-            <p>🌱 Para lâmpadas de cultivo - Espectro suave e preciso</p>
+            <p>Espectrofotômetro Profissional v3.0 • Resolução de até 0.2 nm • Para análise laboratorial</p>
+            <p>⚠️ Este é um simulador educacional baseado na resposta RGB da câmera</p>
         </footer>
     </div>
 
     <script>
-        // Elementos
+        // ========== CONFIGURAÇÕES PROFISSIONAIS ==========
+        const CONFIG = {
+            resolutionLevels: {
+                1: { step: 0.2, label: '0.2 nm' },  // 2500 pontos!
+                2: { step: 0.5, label: '0.5 nm' },  // 1000 pontos
+                3: { step: 1.0, label: '1.0 nm' },  // 500 pontos
+                4: { step: 2.0, label: '2.0 nm' },  // 250 pontos
+                5: { step: 5.0, label: '5.0 nm' }   // 100 pontos
+            },
+            filterTypes: {
+                1: { type: 'moving', window: 3, label: 'Média Móvel' },
+                2: { type: 'gaussian', sigma: 1.5, label: 'Gaussiano' },
+                3: { type: 'savitzky', window: 7, label: 'Savitzky-Golay' }
+            }
+        };
+        
+        // ========== ELEMENTOS DOM ==========
         const video = document.getElementById('video');
         const placeholder = document.getElementById('placeholder');
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
+        const flipBtn = document.getElementById('flipBtn');
         const canvas = document.getElementById('spectrumCanvas');
-        const ctx = canvas.getContext('2d');
-        const smoothSlider = document.getElementById('smoothSlider');
-        const smoothValue = document.getElementById('smoothValue');
-        const speedSlider = document.getElementById('speedSlider');
-        const speedValue = document.getElementById('speedValue');
+        const ctx = canvas.getContext('2d', { alpha: false });
+        const resSlider = document.getElementById('resSlider');
+        const resValue = document.getElementById('resValue');
+        const filterSlider = document.getElementById('filterSlider');
+        const filterValue = document.getElementById('filterValue');
+        const pointsCount = document.getElementById('pointsCount');
+        const bandwidth = document.getElementById('bandwidth');
+        const updateRate = document.getElementById('updateRate');
         
-        // Estado
+        // ========== ESTADO ==========
         let stream = null;
         let isCameraActive = false;
+        let useFrontCamera = false;
         let animationId = null;
+        let lastUpdateTime = 0;
+        let updateCounter = 0;
+        let lastSpectrumData = null;
         
-        // Histórico para suavização
-        let colorHistory = [];
-        const HISTORY_SIZE = 10;
+        // Buffer para suavização
+        const spectrumBuffer = [];
+        const BUFFER_SIZE = 5;
         
-        // Configurações
-        const smoothLevels = {
-            1: { label: 'Baixa', factor: 0.3 },
-            2: { label: 'Média', factor: 0.6 },
-            3: { label: 'Alta', factor: 0.9 }
-        };
+        // ========== INICIALIZAÇÃO ==========
+        function init() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = 320;
+            
+            // Configurar controles
+            resSlider.addEventListener('input', updateResolution);
+            filterSlider.addEventListener('input', updateFilter);
+            
+            updateResolution();
+            updateFilter();
+            
+            // Desenhar grade inicial
+            drawEmptySpectrum();
+        }
         
-        const speedLevels = {
-            1: { label: 'Lenta', interval: 1000 },
-            2: { label: 'Normal', interval: 300 },
-            3: { label: 'Rápida', interval: 100 }
-        };
+        // ========== CONTROLES ==========
+        function updateResolution() {
+            const level = CONFIG.resolutionLevels[resSlider.value];
+            resValue.textContent = level.label;
+        }
         
-        // Configurar controles
-        smoothSlider.addEventListener('input', function() {
-            smoothValue.textContent = smoothLevels[this.value].label;
-        });
+        function updateFilter() {
+            const filter = CONFIG.filterTypes[filterSlider.value];
+            filterValue.textContent = filter.label;
+        }
         
-        speedSlider.addEventListener('input', function() {
-            speedValue.textContent = speedLevels[this.value].label;
-        });
-        
-        // 1. INICIAR CÂMERA
+        // ========== CÂMERA ==========
         startBtn.addEventListener('click', async () => {
             try {
-                // Método simples para Android
                 const constraints = {
-                    video: { facingMode: 'environment' },
+                    video: {
+                        facingMode: useFrontCamera ? 'user' : 'environment',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    },
                     audio: false
                 };
                 
@@ -279,414 +400,36 @@
                     video.style.display = 'block';
                     placeholder.style.display = 'none';
                     startBtn.style.display = 'none';
-                    stopBtn.style.display = 'block';
+                    stopBtn.style.display = 'flex';
+                    flipBtn.style.display = 'flex';
                     isCameraActive = true;
                     
-                    // Iniciar análise
-                    startAnalysis();
+                    startSpectrumAnalysis();
                 };
                 
             } catch (error) {
-                alert('Permita o acesso à câmera!\n\nAtualize a página e tente novamente.');
+                console.error('Erro câmera:', error);
+                alert('Permita o acesso à câmera!\n\nAtualize a página e toque em "PERMITIR".');
             }
         });
         
-        // 2. ANÁLISE PRINCIPAL
-        function startAnalysis() {
-            if (animationId) cancelAnimationFrame(animationId);
+        flipBtn.addEventListener('click', () => {
+            if (stream) stream.getTracks().forEach(t => t.stop());
             
-            function analyze() {
-                if (!isCameraActive) return;
-                
-                const speed = speedLevels[speedSlider.value].interval;
-                
-                // Controlar taxa de atualização
-                setTimeout(() => {
-                    analyzeFrame();
-                    animationId = requestAnimationFrame(analyze);
-                }, speed);
-            }
+            useFrontCamera = !useFrontCamera;
+            video.style.display = 'none';
+            placeholder.style.display = 'flex';
+            startBtn.style.display = 'flex';
+            stopBtn.style.display = 'none';
+            flipBtn.style.display = 'none';
+            isCameraActive = false;
             
-            analyze();
-        }
+            setTimeout(() => startBtn.click(), 300);
+        });
         
-        // 3. ANALISAR FRAME COM ALTA RESOLUÇÃO
-        function analyzeFrame() {
-            if (!isCameraActive || video.readyState !== video.HAVE_ENOUGH_DATA) return;
-            
-            try {
-                // Criar canvas de análise
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-                
-                // Usar tamanho maior para mais dados
-                tempCanvas.width = 640;
-                tempCanvas.height = 480;
-                
-                // Capturar frame
-                tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
-                
-                // Obter dados da imagem
-                const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-                const data = imageData.data;
-                
-                // ANALISAR COM MAIS DETALHE
-                // Dividir a imagem em regiões para análise espacial
-                const regions = analyzeRegions(data, tempCanvas.width, tempCanvas.height);
-                
-                // Calcular espectro de alta resolução
-                const spectrum = calculateHighResSpectrum(regions);
-                
-                // Aplicar suavização temporal
-                colorHistory.push(spectrum);
-                if (colorHistory.length > HISTORY_SIZE) {
-                    colorHistory.shift();
-                }
-                
-                const smoothedSpectrum = smoothSpectrum(colorHistory);
-                
-                // Desenhar espectro suave
-                drawHighResSpectrum(smoothedSpectrum);
-                
-            } catch (error) {
-                console.log('Processando...');
-            }
-        }
+        stopBtn.addEventListener('click', stopCamera);
         
-        // 4. ANALISAR REGIÕES DA IMAGEM
-        function analyzeRegions(data, width, height) {
-            const regions = {
-                red: { total: 0, count: 0 },
-                green: { total: 0, count: 0 },
-                blue: { total: 0, count: 0 },
-                yellow: { total: 0, count: 0 },
-                cyan: { total: 0, count: 0 },
-                magenta: { total: 0, count: 0 },
-                white: { total: 0, count: 0 }
-            };
-            
-            // Analisar cada pixel
-            for (let i = 0; i < data.length; i += 4) {
-                const r = data[i];
-                const g = data[i + 1];
-                const b = data[i + 2];
-                
-                // Classificar por cor dominante com mais nuances
-                const max = Math.max(r, g, b);
-                const min = Math.min(r, g, b);
-                const diff = max - min;
-                
-                if (diff < 30) {
-                    // Tons de cinza/branco
-                    regions.white.total += (r + g + b) / 3;
-                    regions.white.count++;
-                } else if (r > g && r > b) {
-                    // Vermelho dominante
-                    if (g > b * 1.5) {
-                        // Amarelo (vermelho + verde)
-                        regions.yellow.total += (r + g) / 2;
-                        regions.yellow.count++;
-                    } else {
-                        regions.red.total += r;
-                        regions.red.count++;
-                    }
-                } else if (g > r && g > b) {
-                    // Verde dominante
-                    if (b > r * 1.5) {
-                        // Ciano (verde + azul)
-                        regions.cyan.total += (g + b) / 2;
-                        regions.cyan.count++;
-                    } else {
-                        regions.green.total += g;
-                        regions.green.count++;
-                    }
-                } else {
-                    // Azul dominante
-                    if (r > g * 1.5) {
-                        // Magenta (azul + vermelho)
-                        regions.magenta.total += (b + r) / 2;
-                        regions.magenta.count++;
-                    } else {
-                        regions.blue.total += b;
-                        regions.blue.count++;
-                    }
-                }
-            }
-            
-            return regions;
-        }
-        
-        // 5. CALCULAR ESPECTRO DE ALTA RESOLUÇÃO
-        function calculateHighResSpectrum(regions) {
-            const spectrum = [];
-            const smoothFactor = smoothLevels[smoothSlider.value].factor;
-            
-            // Comprimentos de onda de 300nm a 800nm com alta resolução
-            for (let wavelength = 300; wavelength <= 800; wavelength += 1) { // 1nm de resolução!
-                let intensity = 0;
-                
-                // Funções de resposta espectral mais suaves e sobrepostas
-                if (wavelength < 400) {
-                    // UV/Violeta - baseado em azul e magenta
-                    intensity = (regions.blue.total / Math.max(1, regions.blue.count)) * 0.7 +
-                               (regions.magenta.total / Math.max(1, regions.magenta.count)) * 0.3;
-                    intensity *= gaussian(wavelength, 380, 50);
-                } 
-                else if (wavelength < 450) {
-                    // Azul/violeta - transição suave
-                    intensity = (regions.blue.total / Math.max(1, regions.blue.count)) * 0.8 +
-                               (regions.cyan.total / Math.max(1, regions.cyan.count)) * 0.2;
-                    intensity *= gaussian(wavelength, 425, 40);
-                }
-                else if (wavelength < 500) {
-                    // Azul/ciano
-                    intensity = (regions.blue.total / Math.max(1, regions.blue.count)) * 0.6 +
-                               (regions.cyan.total / Math.max(1, regions.cyan.count)) * 0.4;
-                    intensity *= gaussian(wavelength, 475, 35);
-                }
-                else if (wavelength < 550) {
-                    // Verde/ciano - transição
-                    intensity = (regions.green.total / Math.max(1, regions.green.count)) * 0.7 +
-                               (regions.cyan.total / Math.max(1, regions.cyan.count)) * 0.3;
-                    intensity *= gaussian(wavelength, 525, 35);
-                }
-                else if (wavelength < 600) {
-                    // Verde/amarelo
-                    intensity = (regions.green.total / Math.max(1, regions.green.count)) * 0.6 +
-                               (regions.yellow.total / Math.max(1, regions.yellow.count)) * 0.4;
-                    intensity *= gaussian(wavelength, 575, 40);
-                }
-                else if (wavelength < 650) {
-                    // Amarelo/laranja
-                    intensity = (regions.yellow.total / Math.max(1, regions.yellow.count)) * 0.7 +
-                               (regions.red.total / Math.max(1, regions.red.count)) * 0.3;
-                    intensity *= gaussian(wavelength, 625, 40);
-                }
-                else if (wavelength < 700) {
-                    // Vermelho/laranja
-                    intensity = (regions.red.total / Math.max(1, regions.red.count)) * 0.8 +
-                               (regions.magenta.total / Math.max(1, regions.magenta.count)) * 0.2;
-                    intensity *= gaussian(wavelength, 675, 45);
-                }
-                else {
-                    // Vermelho profundo
-                    intensity = (regions.red.total / Math.max(1, regions.red.count)) * 0.9 +
-                               (regions.magenta.total / Math.max(1, regions.magenta.count)) * 0.1;
-                    intensity *= gaussian(wavelength, 750, 60);
-                }
-                
-                // Adicionar fundo contínuo (branco/cinza)
-                const whiteLevel = regions.white.total / Math.max(1, regions.white.count);
-                intensity += whiteLevel * 0.3 * gaussian(wavelength, 550, 200);
-                
-                // Aplicar suavização
-                intensity = intensity * smoothFactor + (Math.random() * 5) * (1 - smoothFactor);
-                
-                spectrum.push({
-                    wavelength: wavelength,
-                    intensity: Math.max(0, Math.min(255, intensity))
-                });
-            }
-            
-            return spectrum;
-        }
-        
-        // 6. SUAVIZAÇÃO TEMPORAL
-        function smoothSpectrum(history) {
-            if (history.length === 0) return [];
-            
-            const smoothed = [];
-            const weights = [0.1, 0.15, 0.2, 0.25, 0.3]; // Peso maior para medições mais recentes
-            
-            for (let i = 0; i < history[0].length; i++) {
-                let total = 0;
-                let weightSum = 0;
-                
-                for (let j = 0; j < history.length; j++) {
-                    const weight = weights[Math.min(j, weights.length - 1)];
-                    total += history[j][i].intensity * weight;
-                    weightSum += weight;
-                }
-                
-                smoothed.push({
-                    wavelength: history[0][i].wavelength,
-                    intensity: total / weightSum
-                });
-            }
-            
-            return smoothed;
-        }
-        
-        // 7. DESENHAR ESPECTRO DE ALTA RESOLUÇÃO
-        function drawHighResSpectrum(spectrum) {
-            const width = canvas.width = canvas.clientWidth;
-            const height = canvas.height = 350;
-            
-            // Limpar canvas
-            ctx.clearRect(0, 0, width, height);
-            
-            // Fundo com gradiente do espectro REAL
-            drawSpectrumBackground(width, height);
-            
-            // Encontrar intensidade máxima para normalizar
-            const maxIntensity = Math.max(...spectrum.map(s => s.intensity), 1);
-            
-            // Desenhar linha SMOOTH com interpolação cúbica
-            drawSmoothLine(spectrum, width, height, maxIntensity);
-            
-            // Eixos e informações
-            drawAxesAndInfo(width, height, maxIntensity);
-        }
-        
-        function drawSpectrumBackground(width, height) {
-            // Gradiente REAL do espectro visível
-            const gradient = ctx.createLinearGradient(0, 0, width, 0);
-            
-            // Cores mais precisas do espectro
-            gradient.addColorStop(0.00, 'rgba(75, 0, 130, 0.15)');  // Violeta profundo
-            gradient.addColorStop(0.10, 'rgba(138, 43, 226, 0.2)'); // Violeta
-            gradient.addColorStop(0.20, 'rgba(0, 0, 255, 0.2)');    // Azul
-            gradient.addColorStop(0.30, 'rgba(0, 191, 255, 0.2)');  // Azul claro
-            gradient.addColorStop(0.40, 'rgba(0, 255, 255, 0.2)');  // Ciano
-            gradient.addColorStop(0.50, 'rgba(0, 255, 127, 0.2)');  // Verde água
-            gradient.addColorStop(0.60, 'rgba(50, 205, 50, 0.2)');  // Verde lima
-            gradient.addColorStop(0.70, 'rgba(255, 255, 0, 0.2)');  // Amarelo
-            gradient.addColorStop(0.80, 'rgba(255, 165, 0, 0.2)');  // Laranja
-            gradient.addColorStop(0.90, 'rgba(255, 69, 0, 0.2)');   // Vermelho laranja
-            gradient.addColorStop(1.00, 'rgba(255, 0, 0, 0.2)');    // Vermelho
-            
-            // Fundo
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, width, height);
-            
-            // Barra de espectro
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, height - 25, width, 25);
-        }
-        
-        function drawSmoothLine(spectrum, width, height, maxIntensity) {
-            // Criar gradiente para a linha
-            const lineGradient = ctx.createLinearGradient(0, 0, width, 0);
-            lineGradient.addColorStop(0.0, '#9400d3');  // Violeta
-            lineGradient.addColorStop(0.2, '#0000ff');  // Azul
-            lineGradient.addColorStop(0.4, '#00ffff');  // Ciano
-            lineGradient.addColorStop(0.6, '#00ff00');  // Verde
-            lineGradient.addColorStop(0.8, '#ffff00');  // Amarelo
-            lineGradient.addColorStop(1.0, '#ff0000');  // Vermelho
-            
-            // Desenhar linha com SMOOTHING
-            ctx.beginPath();
-            ctx.lineWidth = 2.5;
-            ctx.strokeStyle = lineGradient;
-            ctx.lineJoin = 'round';
-            ctx.lineCap = 'round';
-            
-            // Usar menos pontos para linha mais suave
-            const step = Math.max(1, Math.floor(spectrum.length / 200));
-            
-            for (let i = 0; i < spectrum.length; i += step) {
-                const point = spectrum[i];
-                const x = (point.wavelength - 300) / 500 * width;
-                const y = height - 30 - (point.intensity / maxIntensity * (height - 60));
-                
-                if (i === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    // Interpolação suave entre pontos
-                    const prevPoint = spectrum[i - step];
-                    const prevX = (prevPoint.wavelength - 300) / 500 * width;
-                    const prevY = height - 30 - (prevPoint.intensity / maxIntensity * (height - 60));
-                    
-                    // Curva de Bézier para suavização
-                    const cp1x = prevX + (x - prevX) * 0.5;
-                    const cp1y = prevY;
-                    const cp2x = prevX + (x - prevX) * 0.5;
-                    const cp2y = y;
-                    
-                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
-                }
-            }
-            
-            ctx.stroke();
-            
-            // Preenchimento suave abaixo da linha
-            ctx.lineTo(width, height - 30);
-            ctx.lineTo(0, height - 30);
-            ctx.closePath();
-            
-            const fillGradient = ctx.createLinearGradient(0, 0, 0, height);
-            fillGradient.addColorStop(0, 'rgba(148, 0, 211, 0.15)');
-            fillGradient.addColorStop(0.5, 'rgba(0, 255, 255, 0.1)');
-            fillGradient.addColorStop(1, 'rgba(148, 0, 211, 0.05)');
-            ctx.fillStyle = fillGradient;
-            ctx.fill();
-        }
-        
-        function drawAxesAndInfo(width, height, maxIntensity) {
-            // Eixo X
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(0, height - 30);
-            ctx.lineTo(width, height - 30);
-            ctx.stroke();
-            
-            // Marcadores importantes para cultivo
-            const markers = [
-                { wl: 380, label: 'UV-A', color: '#9400d3' },
-                { wl: 450, label: 'Azul', color: '#0000ff' },
-                { wl: 530, label: 'Verde', color: '#00ff00' },
-                { wl: 630, label: 'Vermelho', color: '#ff0000' },
-                { wl: 660, label: 'Clorofila', color: '#ff4500' },
-                { wl: 730, label: 'Far-Red', color: '#8b0000' }
-            ];
-            
-            ctx.font = '11px Arial';
-            ctx.textAlign = 'center';
-            
-            markers.forEach(marker => {
-                const x = (marker.wl - 300) / 500 * width;
-                
-                // Linha vertical
-                ctx.strokeStyle = marker.color + '40';
-                ctx.beginPath();
-                ctx.moveTo(x, 20);
-                ctx.lineTo(x, height - 30);
-                ctx.stroke();
-                
-                // Marcador
-                ctx.fillStyle = marker.color;
-                ctx.beginPath();
-                ctx.moveTo(x, height - 30);
-                ctx.lineTo(x - 5, height - 25);
-                ctx.lineTo(x + 5, height - 25);
-                ctx.closePath();
-                ctx.fill();
-                
-                // Rótulo
-                ctx.fillStyle = 'white';
-                ctx.fillText(marker.label + ' ' + marker.wl + 'nm', x, height - 10);
-            });
-            
-            // Título
-            ctx.textAlign = 'left';
-            ctx.font = 'bold 16px Arial';
-            ctx.fillStyle = '#64b5f6';
-            ctx.fillText('Espectro de Alta Resolução', 10, 25);
-            
-            // Informação de resolução
-            ctx.font = '12px Arial';
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-            ctx.fillText('Resolução: 1nm | Suavização: ' + smoothValue.textContent, 10, 45);
-        }
-        
-        // Função Gaussiana para distribuição
-        function gaussian(x, mean, sigma) {
-            return Math.exp(-Math.pow(x - mean, 2) / (2 * Math.pow(sigma, 2)));
-        }
-        
-        // 8. PARAR CÂMERA
-        stopBtn.addEventListener('click', () => {
+        function stopCamera() {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
                 stream = null;
@@ -699,18 +442,666 @@
             
             video.style.display = 'none';
             placeholder.style.display = 'flex';
-            startBtn.style.display = 'block';
+            startBtn.style.display = 'flex';
             stopBtn.style.display = 'none';
+            flipBtn.style.display = 'none';
             isCameraActive = false;
             
-            // Limpar canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        });
+            drawEmptySpectrum();
+            clearStatus();
+        }
         
-        // 9. INICIALIZAÇÃO
-        window.addEventListener('DOMContentLoaded', () => {
+        // ========== ANÁLISE ESPECTRAL PROFISSIONAL ==========
+        function startSpectrumAnalysis() {
+            if (animationId) cancelAnimationFrame(animationId);
+            
+            let lastFrameTime = 0;
+            const targetFPS = 30;
+            const frameInterval = 1000 / targetFPS;
+            
+            function analyzeLoop(timestamp) {
+                if (!isCameraActive) return;
+                
+                if (timestamp - lastFrameTime >= frameInterval) {
+                    analyzeHighResSpectrum();
+                    lastFrameTime = timestamp;
+                    
+                    // Atualizar taxa de atualização
+                    updateCounter++;
+                    const now = Date.now();
+                    if (now - lastUpdateTime >= 1000) {
+                        updateRate.textContent = `Taxa: ${updateCounter} Hz`;
+                        updateCounter = 0;
+                        lastUpdateTime = now;
+                    }
+                }
+                
+                animationId = requestAnimationFrame(analyzeLoop);
+            }
+            
+            animationId = requestAnimationFrame(analyzeLoop);
+        }
+        
+        function analyzeHighResSpectrum() {
+            if (!isCameraActive || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+            
+            try {
+                // Criar canvas de análise em alta resolução
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Usar tamanho máximo para mais dados
+                tempCanvas.width = video.videoWidth || 640;
+                tempCanvas.height = video.videoHeight || 480;
+                
+                // Capturar frame
+                tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // Obter dados da imagem
+                const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                const data = imageData.data;
+                
+                // Análise espectrofotométrica avançada
+                const spectralResponse = analyzeSpectralResponse(data);
+                const rawSpectrum = calculateRawSpectrum(spectralResponse);
+                const filteredSpectrum = applySpectralFilter(rawSpectrum);
+                
+                // Adicionar ao buffer para suavização temporal
+                spectrumBuffer.push(filteredSpectrum);
+                if (spectrumBuffer.length > BUFFER_SIZE) spectrumBuffer.shift();
+                
+                // Aplicar suavização temporal
+                const finalSpectrum = applyTemporalSmoothing(spectrumBuffer);
+                lastSpectrumData = finalSpectrum;
+                
+                // Atualizar estatísticas
+                updateStatistics(finalSpectrum);
+                
+                // Renderizar espectro profissional
+                renderProfessionalSpectrum(finalSpectrum);
+                
+            } catch (error) {
+                console.log('Processando...');
+            }
+        }
+        
+        function analyzeSpectralResponse(data) {
+            // Análise multivariada da resposta espectral
+            const response = {
+                uv: { sum: 0, count: 0 },
+                blue: { sum: 0, count: 0 },
+                cyan: { sum: 0, count: 0 },
+                green: { sum: 0, count: 0 },
+                yellow: { sum: 0, count: 0 },
+                orange: { sum: 0, count: 0 },
+                red: { sum: 0, count: 0 },
+                farRed: { sum: 0, count: 0 },
+                white: { sum: 0, count: 0 }
+            };
+            
+            // Análise de cada pixel com classificação espectral precisa
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                // Converter RGB para coordenadas de cromaticidade
+                const sum = r + g + b;
+                if (sum === 0) continue;
+                
+                const x = r / sum;
+                const y = g / sum;
+                const z = b / sum;
+                
+                // Classificação espectral precisa
+                if (b > r * 2 && b > g * 2) {
+                    // UV/Violeta
+                    response.uv.sum += b;
+                    response.uv.count++;
+                } else if (b > r && b > g) {
+                    if (g > r * 1.2) {
+                        // Ciano
+                        response.cyan.sum += (b + g) / 2;
+                        response.cyan.count++;
+                    } else {
+                        // Azul
+                        response.blue.sum += b;
+                        response.blue.count++;
+                    }
+                } else if (g > r && g > b) {
+                    if (r > b * 1.2) {
+                        // Amarelo
+                        response.yellow.sum += (g + r) / 2;
+                        response.yellow.count++;
+                    } else {
+                        // Verde
+                        response.green.sum += g;
+                        response.green.count++;
+                    }
+                } else if (r > g && r > b) {
+                    if (g > b * 1.5) {
+                        // Laranja
+                        response.orange.sum += (r + g) / 2;
+                        response.orange.count++;
+                    } else if (r > 200 && g < 100 && b < 100) {
+                        // Vermelho distante
+                        response.farRed.sum += r;
+                        response.farRed.count++;
+                    } else {
+                        // Vermelho
+                        response.red.sum += r;
+                        response.red.count++;
+                    }
+                } else {
+                    // Branco/cinza
+                    response.white.sum += (r + g + b) / 3;
+                    response.white.count++;
+                }
+            }
+            
+            // Normalizar respostas
+            Object.keys(response).forEach(key => {
+                if (response[key].count > 0) {
+                    response[key].avg = response[key].sum / response[key].count;
+                } else {
+                    response[key].avg = 0;
+                }
+            });
+            
+            return response;
+        }
+        
+        function calculateRawSpectrum(response) {
+            const resolution = CONFIG.resolutionLevels[resSlider.value];
+            const spectrum = [];
+            
+            // Gerar espectro com resolução de laboratório
+            for (let wavelength = 300; wavelength <= 800; wavelength += resolution.step) {
+                let intensity = 0;
+                
+                // Funções de resposta espectral sobrepostas (como em espectrofotômetros reais)
+                const responses = [
+                    // UV/Violeta (300-420nm) - Gaussiana larga
+                    { range: [300, 420], source: 'uv', center: 380, width: 60, weight: 0.8 },
+                    
+                    // Azul (420-490nm) - Duas gaussianas sobrepostas
+                    { range: [420, 490], source: 'blue', center: 450, width: 35, weight: 1.0 },
+                    { range: [420, 490], source: 'cyan', center: 470, width: 40, weight: 0.3 },
+                    
+                    // Ciano/Verde (490-560nm) - Transição suave
+                    { range: [490, 560], source: 'cyan', center: 510, width: 35, weight: 0.6 },
+                    { range: [490, 560], source: 'green', center: 540, width: 40, weight: 0.8 },
+                    
+                    // Verde/Amarelo (560-600nm)
+                    { range: [560, 600], source: 'green', center: 570, width: 30, weight: 0.5 },
+                    { range: [560, 600], source: 'yellow', center: 580, width: 35, weight: 0.9 },
+                    
+                    // Amarelo/Laranja (600-640nm)
+                    { range: [600, 640], source: 'yellow', center: 610, width: 30, weight: 0.4 },
+                    { range: [600, 640], source: 'orange', center: 620, width: 35, weight: 0.8 },
+                    
+                    // Laranja/Vermelho (640-690nm)
+                    { range: [640, 690], source: 'orange', center: 660, width: 40, weight: 0.5 },
+                    { range: [640, 690], source: 'red', center: 670, width: 45, weight: 1.0 },
+                    
+                    // Vermelho/Vermelho distante (690-800nm)
+                    { range: [690, 800], source: 'red', center: 710, width: 60, weight: 0.6 },
+                    { range: [690, 800], source: 'farRed', center: 730, width: 80, weight: 0.8 }
+                ];
+                
+                // Somar todas as contribuições
+                responses.forEach(resp => {
+                    if (wavelength >= resp.range[0] && wavelength <= resp.range[1]) {
+                        const sourceValue = response[resp.source]?.avg || 0;
+                        intensity += sourceValue * resp.weight * 
+                                    gaussian(wavelength, resp.center, resp.width);
+                    }
+                });
+                
+                // Adicionar fundo contínuo (resposta do branco)
+                intensity += response.white.avg * 0.4 * gaussian(wavelength, 550, 250);
+                
+                // Adicionar ruído espectral mínimo (realismo)
+                intensity += (Math.random() - 0.5) * 0.5;
+                
+                spectrum.push({
+                    wavelength: wavelength,
+                    intensity: Math.max(0, Math.min(255, intensity))
+                });
+            }
+            
+            return spectrum;
+        }
+        
+        function applySpectralFilter(spectrum) {
+            const filterType = CONFIG.filterTypes[filterSlider.value];
+            
+            switch(filterType.type) {
+                case 'moving':
+                    return applyMovingAverage(spectrum, filterType.window);
+                    
+                case 'gaussian':
+                    return applyGaussianFilter(spectrum, filterType.sigma);
+                    
+                case 'savitzky':
+                    return applySavitzkyGolay(spectrum, filterType.window);
+                    
+                default:
+                    return spectrum;
+            }
+        }
+        
+        function applyMovingAverage(spectrum, windowSize) {
+            const filtered = [];
+            const halfWindow = Math.floor(windowSize / 2);
+            
+            for (let i = 0; i < spectrum.length; i++) {
+                let sum = 0;
+                let count = 0;
+                
+                for (let j = Math.max(0, i - halfWindow); j <= Math.min(spectrum.length - 1, i + halfWindow); j++) {
+                    sum += spectrum[j].intensity;
+                    count++;
+                }
+                
+                filtered.push({
+                    wavelength: spectrum[i].wavelength,
+                    intensity: sum / count
+                });
+            }
+            
+            return filtered;
+        }
+        
+        function applyGaussianFilter(spectrum, sigma) {
+            const filtered = [];
+            const kernelSize = Math.floor(sigma * 3);
+            
+            for (let i = 0; i < spectrum.length; i++) {
+                let weightedSum = 0;
+                let weightSum = 0;
+                
+                for (let j = -kernelSize; j <= kernelSize; j++) {
+                    const idx = i + j;
+                    if (idx >= 0 && idx < spectrum.length) {
+                        const weight = gaussian(j, 0, sigma);
+                        weightedSum += spectrum[idx].intensity * weight;
+                        weightSum += weight;
+                    }
+                }
+                
+                filtered.push({
+                    wavelength: spectrum[i].wavelength,
+                    intensity: weightedSum / weightSum
+                });
+            }
+            
+            return filtered;
+        }
+        
+        function applySavitzkyGolay(spectrum, window) {
+            // Coeficientes para filtro Savitzky-Golay (janela 7, ordem 3)
+            const coefficients = [-2, 3, 6, 7, 6, 3, -2];
+            const norm = 21;
+            
+            const filtered = [];
+            const halfWindow = Math.floor(window / 2);
+            
+            for (let i = 0; i < spectrum.length; i++) {
+                let sum = 0;
+                let coeffSum = 0;
+                
+                for (let j = -halfWindow; j <= halfWindow; j++) {
+                    const idx = i + j;
+                    if (idx >= 0 && idx < spectrum.length) {
+                        const coeff = coefficients[j + halfWindow];
+                        sum += spectrum[idx].intensity * coeff;
+                        coeffSum += coeff;
+                    }
+                }
+                
+                filtered.push({
+                    wavelength: spectrum[i].wavelength,
+                    intensity: sum / norm
+                });
+            }
+            
+            return filtered;
+        }
+        
+        function applyTemporalSmoothing(buffer) {
+            if (buffer.length === 0) return [];
+            if (buffer.length === 1) return buffer[0];
+            
+            const smoothed = [];
+            const weights = [0.1, 0.15, 0.25, 0.25, 0.25]; // Peso exponencial
+            
+            for (let i = 0; i < buffer[0].length; i++) {
+                let total = 0;
+                let weightSum = 0;
+                
+                for (let j = 0; j < buffer.length; j++) {
+                    const weight = weights[Math.min(j, weights.length - 1)];
+                    total += buffer[j][i].intensity * weight;
+                    weightSum += weight;
+                }
+                
+                smoothed.push({
+                    wavelength: buffer[0][i].wavelength,
+                    intensity: total / weightSum
+                });
+            }
+            
+            return smoothed;
+        }
+        
+        // ========== RENDERIZAÇÃO PROFISSIONAL ==========
+        function renderProfessionalSpectrum(spectrum) {
+            const width = canvas.width;
+            const height = canvas.height;
+            const dpr = window.devicePixelRatio || 1;
+            
+            // Configurar canvas de alta resolução
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            
+            // Limpar com fundo preto
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Desenhar grade profissional
+            drawProfessionalGrid(width, height);
+            
+            // Desenhar espectro suave
+            if (spectrum.length > 0) {
+                drawSmoothSpectrumLine(spectrum, width, height);
+                drawSpectralFeatures(spectrum, width, height);
+            }
+            
+            // Desenhar informações
+            drawSpectrumInfo(width, height, spectrum);
+            
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+        }
+        
+        function drawProfessionalGrid(width, height) {
+            // Grade principal
+            ctx.strokeStyle = 'rgba(59, 130, 246, 0.15)';
+            ctx.lineWidth = 1;
+            
+            // Linhas horizontais
+            for (let i = 1; i <= 5; i++) {
+                const y = 40 + (i * (height - 80) / 6);
+                ctx.beginPath();
+                ctx.moveTo(40, y);
+                ctx.lineTo(width - 20, y);
+                ctx.stroke();
+            }
+            
+            // Linhas verticais (comprimentos de onda importantes)
+            const wavelengths = [300, 380, 450, 530, 630, 700, 800];
+            wavelengths.forEach(wl => {
+                const x = 40 + ((wl - 300) / 500) * (width - 60);
+                ctx.beginPath();
+                ctx.moveTo(x, 40);
+                ctx.lineTo(x, height - 40);
+                ctx.stroke();
+            });
+            
+            // Eixos
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 1.5;
+            
+            // Eixo X
+            ctx.beginPath();
+            ctx.moveTo(40, height - 40);
+            ctx.lineTo(width - 20, height - 40);
+            ctx.stroke();
+            
+            // Eixo Y
+            ctx.beginPath();
+            ctx.moveTo(40, 40);
+            ctx.lineTo(40, height - 40);
+            ctx.stroke();
+            
+            // Marcadores do eixo X
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.font = '11px "Courier New", monospace';
+            ctx.textAlign = 'center';
+            
+            wavelengths.forEach(wl => {
+                const x = 40 + ((wl - 300) / 500) * (width - 60);
+                ctx.beginPath();
+                ctx.moveTo(x, height - 40);
+                ctx.lineTo(x, height - 35);
+                ctx.stroke();
+                
+                ctx.fillText(wl + ' nm', x, height - 20);
+            });
+            
+            // Marcadores do eixo Y
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const y = height - 40 - (i * (height - 80) / 5);
+                const value = i * 20;
+                ctx.fillText(value + '%', 35, y + 4);
+            }
+        }
+        
+        function drawSmoothSpectrumLine(spectrum, width, height) {
+            // Encontrar máximo para normalização
+            const maxIntensity = Math.max(...spectrum.map(s => s.intensity), 1);
+            
+            // Criar gradiente espectral para a linha
+            const lineGradient = ctx.createLinearGradient(40, 0, width - 20, 0);
+            lineGradient.addColorStop(0.0, '#8b5cf6');   // Violeta
+            lineGradient.addColorStop(0.2, '#3b82f6');   // Azul
+            lineGradient.addColorStop(0.4, '#06b6d4');   // Ciano
+            lineGradient.addColorStop(0.6, '#10b981');   // Verde
+            lineGradient.addColorStop(0.8, '#f59e0b');   // Amarelo/Laranja
+            lineGradient.addColorStop(1.0, '#ef4444');   // Vermelho
+            
+            // Desenhar linha com interpolação cúbica
+            ctx.beginPath();
+            ctx.lineWidth = 2.2;
+            ctx.strokeStyle = lineGradient;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            
+            // Usar amostragem adaptativa para suavidade
+            const step = Math.max(1, Math.floor(spectrum.length / 400));
+            const points = [];
+            
+            for (let i = 0; i < spectrum.length; i += step) {
+                const point = spectrum[i];
+                const x = 40 + ((point.wavelength - 300) / 500) * (width - 60);
+                const y = height - 40 - (point.intensity / maxIntensity * (height - 80));
+                
+                points.push({ x, y });
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    // Interpolação cúbica de Catmull-Rom para máxima suavidade
+                    const p0 = points[Math.max(0, points.length - 3)];
+                    const p1 = points[points.length - 2];
+                    const p2 = { x, y };
+                    
+                    const tension = 0.5;
+                    const t = 0.5;
+                    
+                    const m1x = (p2.x - p0.x) * tension;
+                    const m1y = (p2.y - p0.y) * tension;
+                    const m2x = (p2.x - p1.x) * tension;
+                    const m2y = (p2.y - p1.y) * tension;
+                    
+                    const t2 = t * t;
+                    const t3 = t2 * t;
+                    
+                    const h1 = 2 * t3 - 3 * t2 + 1;
+                    const h2 = -2 * t3 + 3 * t2;
+                    const h3 = t3 - 2 * t2 + t;
+                    const h4 = t3 - t2;
+                    
+                    const xc = h1 * p1.x + h2 * p2.x + h3 * m1x + h4 * m2x;
+                    const yc = h1 * p1.y + h2 * p2.y + h3 * m1y + h4 * m2y;
+                    
+                    ctx.quadraticCurveTo(xc, yc, x, y);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // Preenchimento suave com gradiente
+            ctx.lineTo(width - 20, height - 40);
+            ctx.lineTo(40, height - 40);
+            ctx.closePath();
+            
+            const fillGradient = ctx.createLinearGradient(0, 0, 0, height);
+            fillGradient.addColorStop(0, 'rgba(59, 130, 246, 0.1)');
+            fillGradient.addColorStop(0.5, 'rgba(59, 130, 246, 0.05)');
+            fillGradient.addColorStop(1, 'rgba(59, 130, 246, 0.01)');
+            ctx.fillStyle = fillGradient;
+            ctx.fill();
+        }
+        
+        function drawSpectralFeatures(spectrum, width, height) {
+            if (spectrum.length < 10) return;
+            
+            // Encontrar picos significativos
+            const peaks = findSignificantPeaks(spectrum);
+            
+            // Marcar picos importantes
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.font = 'bold 11px Arial';
+            ctx.textAlign = 'center';
+            
+            peaks.forEach(peak => {
+                if (peak.prominence > 5) { // Apenas picos significativos
+                    const x = 40 + ((peak.wavelength - 300) / 500) * (width - 60);
+                    const y = height - 40 - (peak.intensity / 255 * (height - 80));
+                    
+                    // Marcador do pico
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ef4444';
+                    ctx.fill();
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    
+                    // Rótulo
+                    ctx.fillStyle = 'white';
+                    ctx.fillText(`λ=${peak.wavelength}nm`, x, y - 10);
+                }
+            });
+        }
+        
+        function findSignificantPeaks(spectrum) {
+            const peaks = [];
+            const window = 5;
+            
+            for (let i = window; i < spectrum.length - window; i++) {
+                let isPeak = true;
+                
+                // Verificar se é um máximo local
+                for (let j = i - window; j <= i + window; j++) {
+                    if (j !== i && spectrum[j].intensity >= spectrum[i].intensity) {
+                        isPeak = false;
+                        break;
+                    }
+                }
+                
+                if (isPeak) {
+                    // Calcular proeminência do pico
+                    let leftMin = Infinity;
+                    let rightMin = Infinity;
+                    
+                    for (let j = i - window; j < i; j++) {
+                        if (spectrum[j].intensity < leftMin) leftMin = spectrum[j].intensity;
+                    }
+                    for (let j = i + 1; j <= i + window; j++) {
+                        if (spectrum[j].intensity < rightMin) rightMin = spectrum[j].intensity;
+                    }
+                    
+                    const prominence = spectrum[i].intensity - Math.max(leftMin, rightMin);
+                    
+                    peaks.push({
+                        wavelength: spectrum[i].wavelength,
+                        intensity: spectrum[i].intensity,
+                        prominence: prominence
+                    });
+                }
+            }
+            
+            return peaks.sort((a, b) => b.prominence - a.prominence).slice(0, 5);
+        }
+        
+        function drawSpectrumInfo(width, height, spectrum) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.font = 'bold 14px "Segoe UI", sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('ANÁLISE ESPECTROFOTOMÉTRICA', 50, 30);
+            
+            ctx.font = '11px "Courier New", monospace';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            
+            const resolution = CONFIG.resolutionLevels[resSlider.value];
+            const filter = CONFIG.filterTypes[filterSlider.value];
+            
+            ctx.fillText(`Resolução: ${resolution.label}`, 50, height - 70);
+            ctx.fillText(`Filtro: ${filter.label}`, 50, height - 55);
+            ctx.fillText(`Pontos: ${spectrum.length}`, 50, height - 40);
+            
+            if (spectrum.length > 0) {
+                const avgIntensity = spectrum.reduce((sum, s) => sum + s.intensity, 0) / spectrum.length;
+                ctx.fillText(`Intensidade média: ${avgIntensity.toFixed(1)}`, width - 200, height - 70);
+            }
+        }
+        
+        function drawEmptySpectrum() {
+            const width = canvas.width = canvas.clientWidth;
+            const height = canvas.height = 320;
+            
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, width, height);
+            
+            drawProfessionalGrid(width, height);
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.font = '16px "Segoe UI", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('AGUARDANDO ANÁLISE ESPECTRAL', width / 2, height / 2);
+        }
+        
+        function updateStatistics(spectrum) {
+            pointsCount.textContent = `Pontos: ${spectrum.length}`;
+            
+            if (spectrum.length > 0) {
+                const bandwidthValue = spectrum[spectrum.length - 1].wavelength - spectrum[0].wavelength;
+                bandwidth.textContent = `Largura: ${bandwidthValue.toFixed(1)} nm`;
+            }
+        }
+        
+        function clearStatus() {
+            pointsCount.textContent = 'Pontos: 0';
+            bandwidth.textContent = 'Largura: 0 nm';
+            updateRate.textContent = 'Taxa: 0 Hz';
+        }
+        
+        // ========== FUNÇÕES AUXILIARES ==========
+        function gaussian(x, mean, sigma) {
+            return Math.exp(-Math.pow(x - mean, 2) / (2 * Math.pow(sigma, 2)));
+        }
+        
+        // ========== INICIAR APLICAÇÃO ==========
+        window.addEventListener('DOMContentLoaded', init);
+        window.addEventListener('resize', () => {
             canvas.width = canvas.clientWidth;
-            canvas.height = 350;
+            if (!isCameraActive) {
+                drawEmptySpectrum();
+            }
         });
     </script>
 </body>
