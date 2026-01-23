@@ -241,39 +241,6 @@
             display: block;
         }
         
-        .zoom-metrics {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .zoom-metric-card {
-            background: rgba(40, 40, 80, 0.9);
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid rgba(255, 170, 0, 0.3);
-        }
-        
-        .zoom-metric-label {
-            font-size: 11px;
-            color: #ffaa00;
-            margin-bottom: 6px;
-        }
-        
-        .zoom-metric-value {
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-        }
-        
-        .zoom-metric-unit {
-            font-size: 10px;
-            color: #78909c;
-            margin-left: 4px;
-        }
-        
         .metrics-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -343,6 +310,39 @@
             font-size: 10px;
             color: #78909c;
             margin-top: 4px;
+        }
+        
+        .zoom-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .zoom-metric-card {
+            background: rgba(40, 40, 80, 0.9);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255, 170, 0, 0.3);
+        }
+        
+        .zoom-metric-label {
+            font-size: 11px;
+            color: #ffaa00;
+            margin-bottom: 6px;
+        }
+        
+        .zoom-metric-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .zoom-metric-unit {
+            font-size: 10px;
+            color: #78909c;
+            margin-left: 4px;
         }
         
         .quality-control {
@@ -470,7 +470,7 @@
             .video-container { height: 180px; }
             .chart-container { height: 220px; }
             button { min-height: 48px; }
-            .metrics-container { grid-template-columns: 1fr; }
+            .metrics-container { grid-template-columns: repeat(2, 1fr); }
             .regions-container { grid-template-columns: repeat(2, 1fr); }
             .zoom-metrics { grid-template-columns: repeat(2, 1fr); }
             .zoom-controls-overlay { bottom: 5px; }
@@ -480,6 +480,8 @@
         @media (max-width: 480px) {
             .video-container { height: 160px; }
             .chart-container { height: 200px; }
+            .metrics-container { grid-template-columns: 1fr; }
+            .regions-container { grid-template-columns: 1fr; }
             .zoom-metrics { grid-template-columns: 1fr; }
         }
     </style>
@@ -547,6 +549,32 @@
                 <canvas id="spectrumCanvas"></canvas>
             </div>
             
+            <!-- Métricas principais RESTAURADAS -->
+            <div class="metrics-container">
+                <div class="metric-card">
+                    <div class="metric-title">🌿 PPFD (Fótons)</div>
+                    <div class="metric-value" id="ppfdValue">0.0</div>
+                    <div class="metric-unit">μmol/m²/s</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-title">⚡ INTENSIDADE MÁXIMA</div>
+                    <div class="metric-value" id="maxIntensityValue">0.0</div>
+                    <div class="metric-unit">unidades relativas</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-title">📊 PICO ESPECTRAL</div>
+                    <div class="metric-value" id="peakWavelengthValue">0</div>
+                    <div class="metric-unit">nanômetros</div>
+                </div>
+            </div>
+            
+            <!-- Intensidades por região RESTAURADAS -->
+            <div class="regions-container" id="regionsContainer">
+                <!-- As regiões serão preenchidas via JavaScript -->
+            </div>
+            
             <div class="status-bar">
                 <div class="status-item">
                     <div>RESOLUÇÃO</div>
@@ -607,8 +635,8 @@
         </div>
         
         <footer>
-            <p>Espectrofotômetro v8.2 • Zoom da câmera nativo • Análise da região central</p>
-            <p>⚡ Gráfico do espectro sempre visível • Zoom complementar</p>
+            <p>Espectrofotômetro v8.3 • Zoom da câmera nativo • Análise da região central</p>
+            <p>🌿 PPFD • Intensidades regionais • Gráfico sempre visível</p>
         </footer>
     </div>
 
@@ -655,6 +683,12 @@
         const zoomInBtn = document.getElementById('zoomInBtn');
         const zoomStatus = document.getElementById('zoomStatus');
         
+        // Elementos de métricas RESTAURADOS
+        const ppfdValue = document.getElementById('ppfdValue');
+        const maxIntensityValue = document.getElementById('maxIntensityValue');
+        const peakWavelengthValue = document.getElementById('peakWavelengthValue');
+        const regionsContainer = document.getElementById('regionsContainer');
+        
         const saturationSlider = document.getElementById('saturationSlider');
         const saturationValue = document.getElementById('saturationValue');
         const speedSlider = document.getElementById('speedSlider');
@@ -676,6 +710,8 @@
         let autoSaturation = true;
         let isFrozen = false;
         let frozenSpectrum = null;
+        let frozenRegions = null;
+        let frozenPPFD = 0;
         
         // Controle de zoom
         let currentZoom = 1.0;
@@ -712,6 +748,9 @@
             
             // Inicializar métricas de zoom
             initializeZoomMetrics();
+            
+            // Inicializar regiões RESTAURADO
+            initializeRegions();
             
             // Desenhar estado inicial
             drawEmptySpectrum();
@@ -772,9 +811,6 @@
                     zoomAnalysisSection.style.display = 'none';
                 }
                 
-                // O GRÁFICO DO ESPECTRO SEMPRE FICA VISÍVEL
-                // NÃO PRECISA SER ESCONDIDO
-                
             } catch (error) {
                 console.log('Erro ao ajustar zoom:', error);
             }
@@ -799,6 +835,20 @@
                     <div class="zoom-metric-value">0<span class="zoom-metric-unit">${metric.unit}</span></div>
                 `;
                 zoomMetrics.appendChild(div);
+            });
+        }
+        
+        function initializeRegions() {
+            CONFIG.regions.forEach(region => {
+                const regionCard = document.createElement('div');
+                regionCard.className = 'region-card';
+                regionCard.style.borderLeft = `3px solid ${region.color}`;
+                regionCard.innerHTML = `
+                    <div class="region-name">${region.icon} ${region.name}</div>
+                    <div class="region-value" id="regionValue${region.name}">0.00</div>
+                    <div class="region-wavelength">${region.min}-${region.max}nm</div>
+                `;
+                regionsContainer.appendChild(regionCard);
             });
         }
         
@@ -977,6 +1027,14 @@
                 const smoothed = applyTemporalSmoothing(spectrumHistory);
                 currentSpectrum = smoothed;
                 
+                // Calcular métricas principais RESTAURADAS
+                const regionalIntensities = calculateRegionalIntensities(smoothed);
+                const ppfd = calculatePPFD(smoothed);
+                const maxIntensityData = findMaxIntensity(smoothed);
+                
+                // Atualizar métricas RESTAURADAS
+                updateMetrics(regionalIntensities, ppfd, maxIntensityData);
+                
                 // Se há zoom, analisar também a região central
                 if (currentZoom > 1.0) {
                     analyzeZoomedRegion(tempCtx, tempCanvas.width, tempCanvas.height);
@@ -1141,7 +1199,80 @@
             zoomInfo.innerHTML = info;
         }
         
-        // ========== FUNÇÕES DE ANÁLISE EXISTENTES ==========
+        // ========== FUNÇÕES DE ANÁLISE RESTAURADAS ==========
+        function calculateRegionalIntensities(spectrum) {
+            const intensities = {};
+            
+            CONFIG.regions.forEach(region => {
+                let sum = 0;
+                let count = 0;
+                
+                for (const point of spectrum) {
+                    if (point.wavelength >= region.min && point.wavelength <= region.max) {
+                        sum += point.intensity;
+                        count++;
+                    }
+                }
+                
+                intensities[region.name] = count > 0 ? (sum / count) : 0;
+            });
+            
+            return intensities;
+        }
+        
+        function calculatePPFD(spectrum) {
+            let sum = 0;
+            let count = 0;
+            
+            for (const point of spectrum) {
+                if (point.wavelength >= CONFIG.parRange.min && point.wavelength <= CONFIG.parRange.max) {
+                    sum += point.intensity;
+                    count++;
+                }
+            }
+            
+            const avgIntensity = count > 0 ? sum / count : 0;
+            return (avgIntensity * 2.5).toFixed(1);
+        }
+        
+        function findMaxIntensity(spectrum) {
+            let maxIntensity = 0;
+            let peakWavelength = 0;
+            
+            for (const point of spectrum) {
+                if (point.intensity > maxIntensity) {
+                    maxIntensity = point.intensity;
+                    peakWavelength = point.wavelength;
+                }
+            }
+            
+            return {
+                intensity: maxIntensity.toFixed(2),
+                wavelength: Math.round(peakWavelength)
+            };
+        }
+        
+        function updateMetrics(regionalIntensities, ppfd, maxIntensityData) {
+            // Atualizar métricas principais
+            ppfdValue.textContent = ppfd;
+            maxIntensityValue.textContent = maxIntensityData.intensity;
+            peakWavelengthValue.textContent = maxIntensityData.wavelength;
+            
+            // Atualizar regiões
+            updateRegionsUI(regionalIntensities);
+        }
+        
+        function updateRegionsUI(intensities) {
+            CONFIG.regions.forEach(region => {
+                const valueElement = document.getElementById(`regionValue${region.name}`);
+                if (valueElement) {
+                    const value = intensities[region.name] || 0;
+                    valueElement.textContent = value.toFixed(2);
+                    valueElement.style.color = region.color;
+                }
+            });
+        }
+        
         function analyzeImage(data) {
             const analysis = { r: 0, g: 0, b: 0, count: 0 };
             
@@ -1433,6 +1564,8 @@
             
             if (isFrozen && currentSpectrum) {
                 frozenSpectrum = [...currentSpectrum];
+                frozenRegions = calculateRegionalIntensities(currentSpectrum);
+                frozenPPFD = calculatePPFD(currentSpectrum);
             }
             
             updateFreezeUI();
@@ -1454,6 +1587,12 @@
         
         function renderFrozenData() {
             if (!frozenSpectrum) return;
+            
+            const regionalIntensities = frozenRegions || calculateRegionalIntensities(frozenSpectrum);
+            const ppfd = frozenPPFD || calculatePPFD(frozenSpectrum);
+            const maxIntensityData = findMaxIntensity(frozenSpectrum);
+            
+            updateMetrics(regionalIntensities, ppfd, maxIntensityData);
             renderSpectrum(frozenSpectrum);
         }
         
