@@ -133,20 +133,6 @@
             transform: scale(0.9);
         }
         
-        .analysis-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 60%;
-            height: 60%;
-            transform: translate(-50%, -50%);
-            border: 2px dashed #ffaa00;
-            background: rgba(255, 170, 0, 0.1);
-            pointer-events: none;
-            z-index: 5;
-            display: none;
-        }
-        
         .controls {
             display: flex;
             gap: 8px;
@@ -508,9 +494,9 @@
         <div class="instructions">
             <strong>📋 INSTRUÇÕES DE USO DO ZOOM:</strong>
             <ul>
-                <li><strong>Toque com dois dedos no vídeo</strong> e afaste para dar zoom</li>
-                <li>Use os botões <strong>+ e -</strong> para controle preciso</li>
-                <li>A <strong>região central</strong> (retângulo amarelo) será analisada</li>
+                <li>Use os botões <strong>+ e -</strong> abaixo do vídeo para controlar o zoom</li>
+                <li>O botão <strong>1x</strong> retorna ao zoom normal</li>
+                <li>A <strong>região central</strong> da câmera será analisada com zoom</li>
                 <li>O sistema <strong>analisa apenas o que está no quadro</strong> do zoom</li>
                 <li>Use <strong>zoom máximo</strong> para analisar pontos específicos de luz</li>
             </ul>
@@ -518,7 +504,6 @@
         
         <section class="video-section">
             <div class="zoom-indicator" id="zoomIndicator">Zoom: 1.0x</div>
-            <div class="analysis-overlay" id="analysisOverlay"></div>
             
             <div class="video-container" id="videoContainer">
                 <div id="placeholder">
@@ -552,7 +537,7 @@
             </div>
             
             <div class="camera-info" id="cameraInfo">
-                Zoom disponível: Aguardando câmera...
+                Controle de zoom disponível após iniciar a câmera
             </div>
         </section>
         
@@ -564,7 +549,7 @@
                     ANÁLISE DA REGIÃO COM ZOOM
                 </div>
                 <div class="zoom-info" id="zoomInfo">
-                    Região central (60% do quadro) • Zoom: <span id="currentZoomValue">1.0x</span>
+                    Zoom: <span id="currentZoomValue">1.0x</span>
                 </div>
             </div>
             
@@ -577,7 +562,7 @@
             </div>
         </div>
         
-        <!-- Seção de análise geral (mantida da versão anterior) -->
+        <!-- Seção de análise geral -->
         <section class="spectrum-section">
             <div class="status-bar">
                 <div class="status-item">
@@ -622,8 +607,8 @@
         </section>
         
         <footer>
-            <p>Espectrofotômetro v8.0 • Zoom da câmera nativo • Análise da região central</p>
-            <p>📱 Compatível com gestos de pinch-to-zoom em smartphones</p>
+            <p>Espectrofotômetro v8.1 • Zoom da câmera nativo • Análise da região central</p>
+            <p>⚡ Use os botões + e - para controlar o zoom</p>
         </footer>
     </div>
 
@@ -643,7 +628,7 @@
                 { name: 'Far-Red', min: 700, max: 800, color: '#8b0000', icon: '🟤' }
             ],
             parRange: { min: 400, max: 700 },
-            analysisRegion: 0.6 // 60% da área central para análise
+            analysisRegion: 0.8 // 80% da área central para análise
         };
         
         // ========== ELEMENTOS DOM ==========
@@ -656,7 +641,6 @@
         const freezeBtn = document.getElementById('freezeBtn');
         const freezeIndicator = document.getElementById('freezeIndicator');
         const zoomIndicator = document.getElementById('zoomIndicator');
-        const analysisOverlay = document.getElementById('analysisOverlay');
         const zoomAnalysisSection = document.getElementById('zoomAnalysisSection');
         const zoomInfo = document.getElementById('zoomInfo');
         const currentZoomValue = document.getElementById('currentZoomValue');
@@ -696,7 +680,7 @@
         // Controle de zoom
         let currentZoom = 1.0;
         let minZoom = 1.0;
-        let maxZoom = 10.0;
+        let maxZoom = 8.0;
         let isZoomSupported = false;
         let track = null;
         
@@ -723,11 +707,8 @@
             // Configurar botão de congelamento
             freezeBtn.addEventListener('click', toggleFreeze);
             
-            // Configurar controles de zoom
+            // Configurar controles de zoom simplificados
             setupZoomControls();
-            
-            // Configurar gestos de zoom
-            setupZoomGestures();
             
             // Inicializar métricas de zoom
             initializeZoomMetrics();
@@ -749,7 +730,7 @@
         }
         
         function setupZoomControls() {
-            // Botões de zoom
+            // Botões de zoom simplificados
             zoomOutBtn.addEventListener('click', () => {
                 if (!isCameraActive || !isZoomSupported) return;
                 setZoom(Math.max(minZoom, currentZoom - 0.5));
@@ -764,44 +745,6 @@
                 if (!isCameraActive || !isZoomSupported) return;
                 setZoom(1.0);
             });
-        }
-        
-        function setupZoomGestures() {
-            // Gestos de pinch-to-zoom para dispositivos móveis
-            let initialDistance = 0;
-            let initialZoom = 1.0;
-            
-            videoContainer.addEventListener('touchstart', (e) => {
-                if (e.touches.length === 2 && isCameraActive && isZoomSupported) {
-                    e.preventDefault();
-                    initialDistance = getTouchDistance(e.touches);
-                    initialZoom = currentZoom;
-                }
-            });
-            
-            videoContainer.addEventListener('touchmove', (e) => {
-                if (e.touches.length === 2 && isCameraActive && isZoomSupported) {
-                    e.preventDefault();
-                    const currentDistance = getTouchDistance(e.touches);
-                    const scale = currentDistance / initialDistance;
-                    const newZoom = initialZoom * scale;
-                    setZoom(Math.max(minZoom, Math.min(maxZoom, newZoom)));
-                }
-            });
-            
-            // Zoom com roda do mouse para desktop
-            videoContainer.addEventListener('wheel', (e) => {
-                if (!isCameraActive || !isZoomSupported) return;
-                e.preventDefault();
-                const delta = e.deltaY > 0 ? -0.2 : 0.2;
-                setZoom(Math.max(minZoom, Math.min(maxZoom, currentZoom + delta)));
-            });
-        }
-        
-        function getTouchDistance(touches) {
-            const dx = touches[0].clientX - touches[1].clientX;
-            const dy = touches[0].clientY - touches[1].clientY;
-            return Math.sqrt(dx * dx + dy * dy);
         }
         
         async function setZoom(zoomLevel) {
@@ -822,9 +765,6 @@
                     });
                 }
                 
-                // Atualizar overlay de análise
-                updateAnalysisOverlay();
-                
                 // Mostrar seção de análise de zoom se zoom > 1x
                 if (currentZoom > 1.0) {
                     zoomAnalysisSection.style.display = 'block';
@@ -835,15 +775,6 @@
             } catch (error) {
                 console.log('Erro ao ajustar zoom:', error);
             }
-        }
-        
-        function updateAnalysisOverlay() {
-            const containerRect = videoContainer.getBoundingClientRect();
-            const size = CONFIG.analysisRegion * 100;
-            
-            analysisOverlay.style.width = `${size}%`;
-            analysisOverlay.style.height = `${size}%`;
-            analysisOverlay.style.display = 'block';
         }
         
         function initializeZoomMetrics() {
@@ -909,10 +840,6 @@
                     audio: false
                 };
                 
-                // Verificar suporte a zoom
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const videoDevices = devices.filter(device => device.kind === 'videoinput');
-                
                 stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
                 
@@ -923,10 +850,11 @@
                     if (capabilities.zoom) {
                         isZoomSupported = true;
                         minZoom = capabilities.zoom.min || 1.0;
-                        maxZoom = capabilities.zoom.max || 10.0;
-                        cameraInfo.innerHTML = `Zoom disponível: ${minZoom.toFixed(1)}x a ${maxZoom.toFixed(1)}x<br>Use gestos de pinch-to-zoom`;
+                        maxZoom = capabilities.zoom.max || 8.0;
+                        cameraInfo.innerHTML = `Zoom disponível: ${minZoom.toFixed(1)}x a ${maxZoom.toFixed(1)}x<br>Use os botões + e -`;
                     } else {
-                        cameraInfo.innerHTML = "Zoom não suportado nesta câmera<br>Use os botões +/-";
+                        cameraInfo.innerHTML = "Zoom digital disponível<br>Use os botões + e -";
+                        isZoomSupported = true; // Permite zoom digital
                     }
                 }
                 
@@ -986,7 +914,6 @@
             stopBtn.style.display = 'none';
             flipBtn.style.display = 'none';
             zoomIndicator.style.display = 'none';
-            analysisOverlay.style.display = 'none';
             zoomAnalysisSection.style.display = 'none';
             spectrumHistory.length = 0;
             currentSpectrum = null;
@@ -1063,7 +990,7 @@
         }
         
         function analyzeZoomedRegion(ctx, width, height) {
-            // Calcular região central (60% da área)
+            // Calcular região central (80% da área)
             const regionSize = CONFIG.analysisRegion;
             const regionWidth = width * regionSize;
             const regionHeight = height * regionSize;
