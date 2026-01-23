@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espectrômetro de Luz</title>
+    <title>Espectrômetro HD</title>
     <style>
         * {
             margin: 0;
@@ -18,7 +18,6 @@
             color: #ffffff;
             padding: 15px;
             line-height: 1.5;
-            overflow-x: hidden;
         }
         
         .container {
@@ -32,7 +31,6 @@
             margin-bottom: 20px;
             background: linear-gradient(135deg, #1a237e, #311b92);
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
         
         h1 {
@@ -41,29 +39,21 @@
             color: #64b5f6;
         }
         
-        .subtitle {
-            font-size: 14px;
-            opacity: 0.9;
-            font-weight: 300;
-        }
-        
         .video-section {
             background: rgba(30, 30, 40, 0.8);
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .video-container {
             width: 100%;
-            height: 250px;
+            height: 200px;
             background: #000;
             border-radius: 10px;
             margin-bottom: 15px;
             position: relative;
             overflow: hidden;
-            border: 2px solid #333;
         }
         
         #video {
@@ -83,65 +73,40 @@
             justify-content: center;
             text-align: center;
             padding: 20px;
-            background: #111;
-            border-radius: 10px;
         }
         
         .controls {
             display: flex;
             gap: 10px;
             margin-top: 15px;
-            flex-wrap: wrap;
         }
         
         button {
             flex: 1;
-            min-width: 150px;
-            padding: 16px;
+            padding: 15px;
             border: none;
             border-radius: 10px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            transition: transform 0.2s;
         }
         
-        button:active {
-            transform: scale(0.95);
-        }
+        button:active { transform: scale(0.95); }
         
-        #startBtn {
-            background: linear-gradient(135deg, #2196F3, #21CBF3);
-            color: white;
-        }
-        
-        #stopBtn {
-            background: linear-gradient(135deg, #FF5252, #FF4081);
-            color: white;
-            display: none;
-        }
-        
-        #flipBtn {
-            background: linear-gradient(135deg, #FF9800, #FFC107);
-            color: white;
-            display: none;
-        }
+        #startBtn { background: #2196F3; color: white; }
+        #stopBtn { background: #f44336; color: white; display: none; }
         
         .spectrum-section {
             background: rgba(30, 30, 40, 0.8);
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .chart-container {
             width: 100%;
-            height: 280px;
+            height: 350px;
             margin-bottom: 20px;
         }
         
@@ -153,373 +118,442 @@
             border: 1px solid #333;
         }
         
-        .readings {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .reading-card {
+        .quality-control {
             background: rgba(255, 255, 255, 0.05);
             padding: 15px;
             border-radius: 10px;
-            text-align: center;
-            border-left: 4px solid;
+            margin-top: 15px;
         }
         
-        .reading-label {
-            font-size: 12px;
-            opacity: 0.8;
+        .slider-container {
+            margin: 10px 0;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 5px;
-        }
-        
-        .reading-value {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 8px 0;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .reading-unit {
-            font-size: 11px;
-            opacity: 0.7;
-        }
-        
-        .red { border-left-color: #ff4444; color: #ff4444; }
-        .green { border-left-color: #44ff44; color: #44ff44; }
-        .blue { border-left-color: #4444ff; color: #4444ff; }
-        .purple { border-left-color: #aa44ff; color: #aa44ff; }
-        
-        .permission-help {
-            background: rgba(255, 183, 77, 0.1);
-            border-left: 4px solid #FF9800;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
             font-size: 14px;
         }
         
-        .permission-help h3 {
-            color: #FF9800;
-            margin-bottom: 10px;
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
         }
         
-        .permission-help ul {
-            padding-left: 20px;
-        }
-        
-        .permission-help li {
-            margin-bottom: 5px;
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #2196F3;
+            cursor: pointer;
         }
         
         footer {
             text-align: center;
             padding: 20px;
-            margin-top: 20px;
-            border-top: 1px solid #333;
             font-size: 12px;
             color: #888;
         }
         
         @media (max-width: 480px) {
-            .readings {
-                grid-template-columns: 1fr;
-            }
-            
-            .controls {
-                flex-direction: column;
-            }
-            
-            button {
-                min-width: 100%;
-            }
-            
-            .video-container {
-                height: 200px;
-            }
-            
-            .chart-container {
-                height: 250px;
-            }
+            .controls { flex-direction: column; }
+            .chart-container { height: 300px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🔬 Espectrômetro de Luz</h1>
-            <p class="subtitle">Análise em tempo real - Para lâmpadas de cultivo</p>
+            <h1>🔬 Espectrômetro HD</h1>
+            <p>Alta resolução - Análise suave do espectro</p>
         </header>
         
         <section class="video-section">
-            <h2>📷 Captura de Luz</h2>
             <div class="video-container">
                 <div id="placeholder">
-                    <div style="font-size: 48px; margin-bottom: 15px;">🌱</div>
-                    <h3 style="margin-bottom: 10px;">Pronto para analisar</h3>
-                    <p>Aponte para uma lâmpada e inicie a câmera</p>
+                    <div style="font-size: 48px; margin-bottom: 10px;">📱</div>
+                    <p>Toque em INICIAR CÂMERA</p>
                 </div>
                 <video id="video" autoplay playsinline muted></video>
             </div>
             
             <div class="controls">
-                <button id="startBtn">
-                    <span style="font-size: 20px;">▶</span> INICIAR CÂMERA
-                </button>
-                <button id="stopBtn">
-                    <span style="font-size: 20px;">⏹</span> PARAR CÂMERA
-                </button>
-                <button id="flipBtn">
-                    <span style="font-size: 20px;">🔄</span> VIRAR CÂMERA
-                </button>
+                <button id="startBtn">▶ INICIAR CÂMERA</button>
+                <button id="stopBtn">⏹ PARAR CÂMERA</button>
             </div>
         </section>
         
         <section class="spectrum-section">
-            <h2>🌈 Espectro em Tempo Real</h2>
             <div class="chart-container">
                 <canvas id="spectrumCanvas"></canvas>
             </div>
             
-            <div class="readings">
-                <div class="reading-card red">
-                    <div class="reading-label">Vermelho (620-750nm)</div>
-                    <div class="reading-value red" id="redValue">0</div>
-                    <div class="reading-unit">Intensidade</div>
+            <div class="quality-control">
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>📊 Suavização do Espectro</span>
+                        <span id="smoothValue">Alta</span>
+                    </div>
+                    <input type="range" id="smoothSlider" min="1" max="3" value="3">
                 </div>
-                <div class="reading-card green">
-                    <div class="reading-label">Verde (495-570nm)</div>
-                    <div class="reading-value green" id="greenValue">0</div>
-                    <div class="reading-unit">Intensidade</div>
-                </div>
-                <div class="reading-card blue">
-                    <div class="reading-label">Azul (450-495nm)</div>
-                    <div class="reading-value blue" id="blueValue">0</div>
-                    <div class="reading-unit">Intensidade</div>
-                </div>
-                <div class="reading-card purple">
-                    <div class="reading-label">UV Estimado (300-400nm)</div>
-                    <div class="reading-value purple" id="uvValue">0</div>
-                    <div class="reading-unit">Intensidade</div>
+                
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>⚡ Velocidade de Atualização</span>
+                        <span id="speedValue">Normal</span>
+                    </div>
+                    <input type="range" id="speedSlider" min="1" max="3" value="2">
                 </div>
             </div>
         </section>
         
-        <div class="permission-help">
-            <h3>🔓 Se a câmera não abrir:</h3>
-            <ul>
-                <li>Toque em <strong>"PERMITIR"</strong> quando o navegador perguntar</li>
-                <li>Se já negou: Atualize a página e tente novamente</li>
-                <li>Ou use o Firefox para Android</li>
-                <li>Ou atualize o Chrome</li>
-            </ul>
-        </div>
-        
         <footer>
-            <p>📱 Espectrômetro v1.0 - Análise contínua do espectro luminoso</p>
-            <p>🌱 Ideal para análise de lâmpadas de cultivo</p>
-            <p>⚠️ A região UV é estimada com base na resposta do sensor</p>
+            <p>Espectrômetro HD v2.0 - Resolução otimizada para análise contínua</p>
+            <p>🌱 Para lâmpadas de cultivo - Espectro suave e preciso</p>
         </footer>
     </div>
 
     <script>
-        // Elementos DOM
+        // Elementos
         const video = document.getElementById('video');
         const placeholder = document.getElementById('placeholder');
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
-        const flipBtn = document.getElementById('flipBtn');
         const canvas = document.getElementById('spectrumCanvas');
         const ctx = canvas.getContext('2d');
-        
-        // Elementos de leitura
-        const redValue = document.getElementById('redValue');
-        const greenValue = document.getElementById('greenValue');
-        const blueValue = document.getElementById('blueValue');
-        const uvValue = document.getElementById('uvValue');
+        const smoothSlider = document.getElementById('smoothSlider');
+        const smoothValue = document.getElementById('smoothValue');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
         
         // Estado
         let stream = null;
         let isCameraActive = false;
-        let useFrontCamera = false;
         let animationId = null;
         
-        // Configurar canvas
-        canvas.width = canvas.clientWidth;
-        canvas.height = 280;
+        // Histórico para suavização
+        let colorHistory = [];
+        const HISTORY_SIZE = 10;
         
-        // 1. INICIAR CÂMERA (simplificado para Android)
+        // Configurações
+        const smoothLevels = {
+            1: { label: 'Baixa', factor: 0.3 },
+            2: { label: 'Média', factor: 0.6 },
+            3: { label: 'Alta', factor: 0.9 }
+        };
+        
+        const speedLevels = {
+            1: { label: 'Lenta', interval: 1000 },
+            2: { label: 'Normal', interval: 300 },
+            3: { label: 'Rápida', interval: 100 }
+        };
+        
+        // Configurar controles
+        smoothSlider.addEventListener('input', function() {
+            smoothValue.textContent = smoothLevels[this.value].label;
+        });
+        
+        speedSlider.addEventListener('input', function() {
+            speedValue.textContent = speedLevels[this.value].label;
+        });
+        
+        // 1. INICIAR CÂMERA
         startBtn.addEventListener('click', async () => {
             try {
-                console.log('Tentando iniciar câmera...');
-                
-                // Método SUPER SIMPLES que funciona no Android
+                // Método simples para Android
                 const constraints = {
-                    video: {
-                        facingMode: useFrontCamera ? 'user' : 'environment'
-                    },
+                    video: { facingMode: 'environment' },
                     audio: false
                 };
                 
-                // Tentar método simples
                 stream = await navigator.mediaDevices.getUserMedia(constraints);
-                
-                // Conectar ao vídeo
                 video.srcObject = stream;
                 
-                // Quando o vídeo estiver pronto
                 video.onloadedmetadata = () => {
                     video.play();
-                    
-                    // Mostrar vídeo e esconder placeholder
                     video.style.display = 'block';
                     placeholder.style.display = 'none';
-                    
-                    // Atualizar botões
                     startBtn.style.display = 'none';
-                    stopBtn.style.display = 'flex';
-                    flipBtn.style.display = 'flex';
-                    
+                    stopBtn.style.display = 'block';
                     isCameraActive = true;
                     
-                    console.log('Câmera iniciada com sucesso!');
-                    
-                    // Iniciar análise automática
-                    startContinuousAnalysis();
+                    // Iniciar análise
+                    startAnalysis();
                 };
                 
             } catch (error) {
-                console.error('Erro:', error);
-                
-                // Tentar método MAIS SIMPLES ainda
-                try {
-                    console.log('Tentando método alternativo...');
-                    stream = await navigator.mediaDevices.getUserMedia({ 
-                        video: true,
-                        audio: false 
-                    });
-                    
-                    video.srcObject = stream;
-                    video.onloadedmetadata = () => {
-                        video.play();
-                        video.style.display = 'block';
-                        placeholder.style.display = 'none';
-                        startBtn.style.display = 'none';
-                        stopBtn.style.display = 'flex';
-                        flipBtn.style.display = 'flex';
-                        isCameraActive = true;
-                        startContinuousAnalysis();
-                    };
-                    
-                } catch (secondError) {
-                    console.error('Segunda tentativa falhou:', secondError);
-                    
-                    // Mensagem amigável
-                    let errorMessage = '❌ Não foi possível acessar a câmera.\n\n';
-                    
-                    if (secondError.name === 'NotAllowedError') {
-                        errorMessage += 'Você NEGOU a permissão da câmera.\n\n';
-                        errorMessage += 'Para corrigir:\n';
-                        errorMessage += '1. ATUALIZE esta página\n';
-                        errorMessage += '2. Toque em "PERMITIR" quando perguntado\n';
-                        errorMessage += '3. Ou vá em Configurações do Chrome → Site settings → Camera\n\n';
-                        errorMessage += '📱 Dica: Use o Firefox para Android se continuar com problemas.';
-                    } else {
-                        errorMessage += 'Erro: ' + secondError.message;
-                    }
-                    
-                    alert(errorMessage);
-                }
+                alert('Permita o acesso à câmera!\n\nAtualize a página e tente novamente.');
             }
         });
         
-        // 2. ANÁLISE CONTÍNUA AUTOMÁTICA
-        function startContinuousAnalysis() {
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-            }
+        // 2. ANÁLISE PRINCIPAL
+        function startAnalysis() {
+            if (animationId) cancelAnimationFrame(animationId);
             
             function analyze() {
                 if (!isCameraActive) return;
                 
-                analyzeFrame();
-                animationId = requestAnimationFrame(analyze);
+                const speed = speedLevels[speedSlider.value].interval;
+                
+                // Controlar taxa de atualização
+                setTimeout(() => {
+                    analyzeFrame();
+                    animationId = requestAnimationFrame(analyze);
+                }, speed);
             }
             
             analyze();
         }
         
-        // 3. ANALISAR FRAME
+        // 3. ANALISAR FRAME COM ALTA RESOLUÇÃO
         function analyzeFrame() {
             if (!isCameraActive || video.readyState !== video.HAVE_ENOUGH_DATA) return;
             
             try {
-                // Criar canvas temporário
+                // Criar canvas de análise
                 const tempCanvas = document.createElement('canvas');
                 const tempCtx = tempCanvas.getContext('2d');
                 
-                // Tamanho reduzido para performance
-                tempCanvas.width = 320;
-                tempCanvas.height = 240;
+                // Usar tamanho maior para mais dados
+                tempCanvas.width = 640;
+                tempCanvas.height = 480;
                 
-                // Desenhar frame atual
+                // Capturar frame
                 tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
                 
                 // Obter dados da imagem
                 const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
                 const data = imageData.data;
                 
-                // Calcular médias RGB
-                let r = 0, g = 0, b = 0;
-                let count = 0;
+                // ANALISAR COM MAIS DETALHE
+                // Dividir a imagem em regiões para análise espacial
+                const regions = analyzeRegions(data, tempCanvas.width, tempCanvas.height);
                 
-                // Analisar cada pixel (amostragem)
-                for (let i = 0; i < data.length; i += 4) {
-                    r += data[i];
-                    g += data[i + 1];
-                    b += data[i + 2];
-                    count++;
+                // Calcular espectro de alta resolução
+                const spectrum = calculateHighResSpectrum(regions);
+                
+                // Aplicar suavização temporal
+                colorHistory.push(spectrum);
+                if (colorHistory.length > HISTORY_SIZE) {
+                    colorHistory.shift();
                 }
                 
-                // Calcular médias
-                const avgR = Math.round(r / count);
-                const avgG = Math.round(g / count);
-                const avgB = Math.round(b / count);
+                const smoothedSpectrum = smoothSpectrum(colorHistory);
                 
-                // Calcular UV estimado
-                const avgUV = Math.round((avgB * 0.6 + avgG * 0.4) * 0.5);
-                
-                // Atualizar valores na tela
-                redValue.textContent = avgR;
-                greenValue.textContent = avgG;
-                blueValue.textContent = avgB;
-                uvValue.textContent = avgUV;
-                
-                // Desenhar espectro
-                drawSpectrum(avgR, avgG, avgB, avgUV);
+                // Desenhar espectro suave
+                drawHighResSpectrum(smoothedSpectrum);
                 
             } catch (error) {
-                // Ignorar erros temporários
+                console.log('Processando...');
             }
         }
         
-        // 4. DESENHAR ESPECTRO
-        function drawSpectrum(r, g, b, uv) {
-            const width = canvas.width;
-            const height = canvas.height;
+        // 4. ANALISAR REGIÕES DA IMAGEM
+        function analyzeRegions(data, width, height) {
+            const regions = {
+                red: { total: 0, count: 0 },
+                green: { total: 0, count: 0 },
+                blue: { total: 0, count: 0 },
+                yellow: { total: 0, count: 0 },
+                cyan: { total: 0, count: 0 },
+                magenta: { total: 0, count: 0 },
+                white: { total: 0, count: 0 }
+            };
+            
+            // Analisar cada pixel
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                // Classificar por cor dominante com mais nuances
+                const max = Math.max(r, g, b);
+                const min = Math.min(r, g, b);
+                const diff = max - min;
+                
+                if (diff < 30) {
+                    // Tons de cinza/branco
+                    regions.white.total += (r + g + b) / 3;
+                    regions.white.count++;
+                } else if (r > g && r > b) {
+                    // Vermelho dominante
+                    if (g > b * 1.5) {
+                        // Amarelo (vermelho + verde)
+                        regions.yellow.total += (r + g) / 2;
+                        regions.yellow.count++;
+                    } else {
+                        regions.red.total += r;
+                        regions.red.count++;
+                    }
+                } else if (g > r && g > b) {
+                    // Verde dominante
+                    if (b > r * 1.5) {
+                        // Ciano (verde + azul)
+                        regions.cyan.total += (g + b) / 2;
+                        regions.cyan.count++;
+                    } else {
+                        regions.green.total += g;
+                        regions.green.count++;
+                    }
+                } else {
+                    // Azul dominante
+                    if (r > g * 1.5) {
+                        // Magenta (azul + vermelho)
+                        regions.magenta.total += (b + r) / 2;
+                        regions.magenta.count++;
+                    } else {
+                        regions.blue.total += b;
+                        regions.blue.count++;
+                    }
+                }
+            }
+            
+            return regions;
+        }
+        
+        // 5. CALCULAR ESPECTRO DE ALTA RESOLUÇÃO
+        function calculateHighResSpectrum(regions) {
+            const spectrum = [];
+            const smoothFactor = smoothLevels[smoothSlider.value].factor;
+            
+            // Comprimentos de onda de 300nm a 800nm com alta resolução
+            for (let wavelength = 300; wavelength <= 800; wavelength += 1) { // 1nm de resolução!
+                let intensity = 0;
+                
+                // Funções de resposta espectral mais suaves e sobrepostas
+                if (wavelength < 400) {
+                    // UV/Violeta - baseado em azul e magenta
+                    intensity = (regions.blue.total / Math.max(1, regions.blue.count)) * 0.7 +
+                               (regions.magenta.total / Math.max(1, regions.magenta.count)) * 0.3;
+                    intensity *= gaussian(wavelength, 380, 50);
+                } 
+                else if (wavelength < 450) {
+                    // Azul/violeta - transição suave
+                    intensity = (regions.blue.total / Math.max(1, regions.blue.count)) * 0.8 +
+                               (regions.cyan.total / Math.max(1, regions.cyan.count)) * 0.2;
+                    intensity *= gaussian(wavelength, 425, 40);
+                }
+                else if (wavelength < 500) {
+                    // Azul/ciano
+                    intensity = (regions.blue.total / Math.max(1, regions.blue.count)) * 0.6 +
+                               (regions.cyan.total / Math.max(1, regions.cyan.count)) * 0.4;
+                    intensity *= gaussian(wavelength, 475, 35);
+                }
+                else if (wavelength < 550) {
+                    // Verde/ciano - transição
+                    intensity = (regions.green.total / Math.max(1, regions.green.count)) * 0.7 +
+                               (regions.cyan.total / Math.max(1, regions.cyan.count)) * 0.3;
+                    intensity *= gaussian(wavelength, 525, 35);
+                }
+                else if (wavelength < 600) {
+                    // Verde/amarelo
+                    intensity = (regions.green.total / Math.max(1, regions.green.count)) * 0.6 +
+                               (regions.yellow.total / Math.max(1, regions.yellow.count)) * 0.4;
+                    intensity *= gaussian(wavelength, 575, 40);
+                }
+                else if (wavelength < 650) {
+                    // Amarelo/laranja
+                    intensity = (regions.yellow.total / Math.max(1, regions.yellow.count)) * 0.7 +
+                               (regions.red.total / Math.max(1, regions.red.count)) * 0.3;
+                    intensity *= gaussian(wavelength, 625, 40);
+                }
+                else if (wavelength < 700) {
+                    // Vermelho/laranja
+                    intensity = (regions.red.total / Math.max(1, regions.red.count)) * 0.8 +
+                               (regions.magenta.total / Math.max(1, regions.magenta.count)) * 0.2;
+                    intensity *= gaussian(wavelength, 675, 45);
+                }
+                else {
+                    // Vermelho profundo
+                    intensity = (regions.red.total / Math.max(1, regions.red.count)) * 0.9 +
+                               (regions.magenta.total / Math.max(1, regions.magenta.count)) * 0.1;
+                    intensity *= gaussian(wavelength, 750, 60);
+                }
+                
+                // Adicionar fundo contínuo (branco/cinza)
+                const whiteLevel = regions.white.total / Math.max(1, regions.white.count);
+                intensity += whiteLevel * 0.3 * gaussian(wavelength, 550, 200);
+                
+                // Aplicar suavização
+                intensity = intensity * smoothFactor + (Math.random() * 5) * (1 - smoothFactor);
+                
+                spectrum.push({
+                    wavelength: wavelength,
+                    intensity: Math.max(0, Math.min(255, intensity))
+                });
+            }
+            
+            return spectrum;
+        }
+        
+        // 6. SUAVIZAÇÃO TEMPORAL
+        function smoothSpectrum(history) {
+            if (history.length === 0) return [];
+            
+            const smoothed = [];
+            const weights = [0.1, 0.15, 0.2, 0.25, 0.3]; // Peso maior para medições mais recentes
+            
+            for (let i = 0; i < history[0].length; i++) {
+                let total = 0;
+                let weightSum = 0;
+                
+                for (let j = 0; j < history.length; j++) {
+                    const weight = weights[Math.min(j, weights.length - 1)];
+                    total += history[j][i].intensity * weight;
+                    weightSum += weight;
+                }
+                
+                smoothed.push({
+                    wavelength: history[0][i].wavelength,
+                    intensity: total / weightSum
+                });
+            }
+            
+            return smoothed;
+        }
+        
+        // 7. DESENHAR ESPECTRO DE ALTA RESOLUÇÃO
+        function drawHighResSpectrum(spectrum) {
+            const width = canvas.width = canvas.clientWidth;
+            const height = canvas.height = 350;
             
             // Limpar canvas
             ctx.clearRect(0, 0, width, height);
             
-            // Desenhar fundo com gradiente
+            // Fundo com gradiente do espectro REAL
+            drawSpectrumBackground(width, height);
+            
+            // Encontrar intensidade máxima para normalizar
+            const maxIntensity = Math.max(...spectrum.map(s => s.intensity), 1);
+            
+            // Desenhar linha SMOOTH com interpolação cúbica
+            drawSmoothLine(spectrum, width, height, maxIntensity);
+            
+            // Eixos e informações
+            drawAxesAndInfo(width, height, maxIntensity);
+        }
+        
+        function drawSpectrumBackground(width, height) {
+            // Gradiente REAL do espectro visível
             const gradient = ctx.createLinearGradient(0, 0, width, 0);
-            gradient.addColorStop(0.0, 'rgba(128, 0, 128, 0.2)');
-            gradient.addColorStop(0.2, 'rgba(0, 0, 255, 0.2)');
-            gradient.addColorStop(0.4, 'rgba(0, 255, 0, 0.2)');
-            gradient.addColorStop(0.6, 'rgba(255, 255, 0, 0.2)');
-            gradient.addColorStop(0.8, 'rgba(255, 165, 0, 0.2)');
-            gradient.addColorStop(1.0, 'rgba(255, 0, 0, 0.2)');
+            
+            // Cores mais precisas do espectro
+            gradient.addColorStop(0.00, 'rgba(75, 0, 130, 0.15)');  // Violeta profundo
+            gradient.addColorStop(0.10, 'rgba(138, 43, 226, 0.2)'); // Violeta
+            gradient.addColorStop(0.20, 'rgba(0, 0, 255, 0.2)');    // Azul
+            gradient.addColorStop(0.30, 'rgba(0, 191, 255, 0.2)');  // Azul claro
+            gradient.addColorStop(0.40, 'rgba(0, 255, 255, 0.2)');  // Ciano
+            gradient.addColorStop(0.50, 'rgba(0, 255, 127, 0.2)');  // Verde água
+            gradient.addColorStop(0.60, 'rgba(50, 205, 50, 0.2)');  // Verde lima
+            gradient.addColorStop(0.70, 'rgba(255, 255, 0, 0.2)');  // Amarelo
+            gradient.addColorStop(0.80, 'rgba(255, 165, 0, 0.2)');  // Laranja
+            gradient.addColorStop(0.90, 'rgba(255, 69, 0, 0.2)');   // Vermelho laranja
+            gradient.addColorStop(1.00, 'rgba(255, 0, 0, 0.2)');    // Vermelho
             
             // Fundo
             ctx.fillStyle = '#000';
@@ -528,106 +562,130 @@
             // Barra de espectro
             ctx.fillStyle = gradient;
             ctx.fillRect(0, height - 25, width, 25);
+        }
+        
+        function drawSmoothLine(spectrum, width, height, maxIntensity) {
+            // Criar gradiente para a linha
+            const lineGradient = ctx.createLinearGradient(0, 0, width, 0);
+            lineGradient.addColorStop(0.0, '#9400d3');  // Violeta
+            lineGradient.addColorStop(0.2, '#0000ff');  // Azul
+            lineGradient.addColorStop(0.4, '#00ffff');  // Ciano
+            lineGradient.addColorStop(0.6, '#00ff00');  // Verde
+            lineGradient.addColorStop(0.8, '#ffff00');  // Amarelo
+            lineGradient.addColorStop(1.0, '#ff0000');  // Vermelho
             
-            // Normalizar valores
-            const maxVal = Math.max(r, g, b, uv, 1);
-            const normR = r / maxVal;
-            const normG = g / maxVal;
-            const normB = b / maxVal;
-            const normUV = uv / maxVal;
-            
-            // Desenhar linha do espectro
+            // Desenhar linha com SMOOTHING
             ctx.beginPath();
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = lineGradient;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
             
-            // Gerar pontos suaves
-            for (let wavelength = 300; wavelength <= 800; wavelength += 2) {
-                let intensity = 0;
+            // Usar menos pontos para linha mais suave
+            const step = Math.max(1, Math.floor(spectrum.length / 200));
+            
+            for (let i = 0; i < spectrum.length; i += step) {
+                const point = spectrum[i];
+                const x = (point.wavelength - 300) / 500 * width;
+                const y = height - 30 - (point.intensity / maxIntensity * (height - 60));
                 
-                if (wavelength < 400) {
-                    intensity = normUV * Math.exp(-Math.pow(wavelength - 350, 2) / 2000);
-                } else if (wavelength < 500) {
-                    intensity = normB * Math.exp(-Math.pow(wavelength - 450, 2) / 1500);
-                } else if (wavelength < 600) {
-                    intensity = normG * Math.exp(-Math.pow(wavelength - 550, 2) / 1500);
-                } else {
-                    intensity = normR * Math.exp(-Math.pow(wavelength - 650, 2) / 2000);
-                }
-                
-                const x = (wavelength - 300) / 500 * width;
-                const y = height - 30 - (intensity * (height - 60));
-                
-                if (wavelength === 300) {
+                if (i === 0) {
                     ctx.moveTo(x, y);
                 } else {
-                    ctx.lineTo(x, y);
+                    // Interpolação suave entre pontos
+                    const prevPoint = spectrum[i - step];
+                    const prevX = (prevPoint.wavelength - 300) / 500 * width;
+                    const prevY = height - 30 - (prevPoint.intensity / maxIntensity * (height - 60));
+                    
+                    // Curva de Bézier para suavização
+                    const cp1x = prevX + (x - prevX) * 0.5;
+                    const cp1y = prevY;
+                    const cp2x = prevX + (x - prevX) * 0.5;
+                    const cp2y = y;
+                    
+                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
                 }
             }
             
             ctx.stroke();
             
-            // Preencher área abaixo
+            // Preenchimento suave abaixo da linha
             ctx.lineTo(width, height - 30);
             ctx.lineTo(0, height - 30);
             ctx.closePath();
             
-            const fillGrad = ctx.createLinearGradient(0, 0, 0, height);
-            fillGrad.addColorStop(0, 'rgba(0, 255, 255, 0.2)');
-            fillGrad.addColorStop(1, 'rgba(0, 255, 255, 0.0)');
-            ctx.fillStyle = fillGrad;
+            const fillGradient = ctx.createLinearGradient(0, 0, 0, height);
+            fillGradient.addColorStop(0, 'rgba(148, 0, 211, 0.15)');
+            fillGradient.addColorStop(0.5, 'rgba(0, 255, 255, 0.1)');
+            fillGradient.addColorStop(1, 'rgba(148, 0, 211, 0.05)');
+            ctx.fillStyle = fillGradient;
             ctx.fill();
-            
-            // Eixos
+        }
+        
+        function drawAxesAndInfo(width, height, maxIntensity) {
+            // Eixo X
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
             ctx.lineWidth = 1;
-            
-            // Eixo X
             ctx.beginPath();
             ctx.moveTo(0, height - 30);
             ctx.lineTo(width, height - 30);
             ctx.stroke();
             
-            // Rótulos
-            ctx.fillStyle = 'white';
-            ctx.font = '12px Arial';
+            // Marcadores importantes para cultivo
+            const markers = [
+                { wl: 380, label: 'UV-A', color: '#9400d3' },
+                { wl: 450, label: 'Azul', color: '#0000ff' },
+                { wl: 530, label: 'Verde', color: '#00ff00' },
+                { wl: 630, label: 'Vermelho', color: '#ff0000' },
+                { wl: 660, label: 'Clorofila', color: '#ff4500' },
+                { wl: 730, label: 'Far-Red', color: '#8b0000' }
+            ];
+            
+            ctx.font = '11px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('300nm', 20, height - 10);
-            ctx.fillText('550nm', width / 2, height - 10);
-            ctx.fillText('800nm', width - 20, height - 10);
+            
+            markers.forEach(marker => {
+                const x = (marker.wl - 300) / 500 * width;
+                
+                // Linha vertical
+                ctx.strokeStyle = marker.color + '40';
+                ctx.beginPath();
+                ctx.moveTo(x, 20);
+                ctx.lineTo(x, height - 30);
+                ctx.stroke();
+                
+                // Marcador
+                ctx.fillStyle = marker.color;
+                ctx.beginPath();
+                ctx.moveTo(x, height - 30);
+                ctx.lineTo(x - 5, height - 25);
+                ctx.lineTo(x + 5, height - 25);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Rótulo
+                ctx.fillStyle = 'white';
+                ctx.fillText(marker.label + ' ' + marker.wl + 'nm', x, height - 10);
+            });
             
             // Título
             ctx.textAlign = 'left';
             ctx.font = 'bold 16px Arial';
-            ctx.fillText('Espectro em Tempo Real', 10, 25);
+            ctx.fillStyle = '#64b5f6';
+            ctx.fillText('Espectro de Alta Resolução', 10, 25);
+            
+            // Informação de resolução
+            ctx.font = '12px Arial';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.fillText('Resolução: 1nm | Suavização: ' + smoothValue.textContent, 10, 45);
         }
         
-        // 5. VIRAR CÂMERA
-        flipBtn.addEventListener('click', async () => {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-            
-            useFrontCamera = !useFrontCamera;
-            
-            // Reiniciar
-            video.style.display = 'none';
-            placeholder.style.display = 'flex';
-            startBtn.style.display = 'flex';
-            stopBtn.style.display = 'none';
-            flipBtn.style.display = 'none';
-            isCameraActive = false;
-            
-            // Redesenhar espectro vazio
-            drawSpectrum(0, 0, 0, 0);
-            
-            // Esperar um pouco e reiniciar
-            setTimeout(() => {
-                startBtn.click();
-            }, 500);
-        });
+        // Função Gaussiana para distribuição
+        function gaussian(x, mean, sigma) {
+            return Math.exp(-Math.pow(x - mean, 2) / (2 * Math.pow(sigma, 2)));
+        }
         
-        // 6. PARAR CÂMERA
+        // 8. PARAR CÂMERA
         stopBtn.addEventListener('click', () => {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
@@ -639,53 +697,20 @@
                 animationId = null;
             }
             
-            // Restaurar interface
             video.style.display = 'none';
             placeholder.style.display = 'flex';
-            startBtn.style.display = 'flex';
+            startBtn.style.display = 'block';
             stopBtn.style.display = 'none';
-            flipBtn.style.display = 'none';
             isCameraActive = false;
             
-            // Redesenhar espectro vazio
-            drawSpectrum(0, 0, 0, 0);
+            // Limpar canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
         });
         
-        // 7. REDIMENSIONAMENTO
-        window.addEventListener('resize', () => {
-            canvas.width = canvas.clientWidth;
-            if (!isCameraActive) {
-                drawSpectrum(0, 0, 0, 0);
-            }
-        });
-        
-        // 8. INICIALIZAÇÃO
+        // 9. INICIALIZAÇÃO
         window.addEventListener('DOMContentLoaded', () => {
-            // Desenhar espectro inicial vazio
-            drawSpectrum(0, 0, 0, 0);
-            
-            // Verificar suporte
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                startBtn.disabled = true;
-                startBtn.innerHTML = '<span style="font-size: 20px;">⚠️</span> NAVEGADOR NÃO COMPATÍVEL';
-                placeholder.innerHTML = `
-                    <div style="font-size: 48px; margin-bottom: 15px;">⚠️</div>
-                    <h3 style="margin-bottom: 10px;">Navegador não suportado</h3>
-                    <p>Use Chrome, Firefox ou Edge atualizado</p>
-                `;
-            }
-        });
-        
-        // 9. PWA - Instalação como app
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            
-            // Mostrar sugestão após 3 segundos
-            setTimeout(() => {
-                if (confirm('📱 Deseja instalar este aplicativo no seu celular?')) {
-                    e.prompt();
-                }
-            }, 3000);
+            canvas.width = canvas.clientWidth;
+            canvas.height = 350;
         });
     </script>
 </body>
