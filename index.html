@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espectrofotômetro Final - Melhorado</title>
+    <title>Espectrofotômetro Final - Com Zoom</title>
     <style>
         * {
             margin: 0;
@@ -21,7 +21,7 @@
         }
         
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
         }
         
@@ -90,6 +90,7 @@
             display: flex;
             gap: 8px;
             margin-top: 12px;
+            flex-wrap: wrap;
         }
         
         button {
@@ -106,6 +107,7 @@
             justify-content: center;
             gap: 6px;
             min-height: 44px;
+            min-width: 120px;
         }
         
         button:active { transform: scale(0.97); }
@@ -140,20 +142,162 @@
             border: 1px solid #3949ab;
         }
         
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            background: rgba(40, 40, 80, 0.9);
+            padding: 10px 15px;
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .zoom-label {
+            font-size: 12px;
+            color: #bbdefb;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .zoom-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .zoom-btn {
+            width: 36px;
+            height: 36px;
+            min-width: auto;
+            min-height: auto;
+            padding: 0;
+            background: rgba(66, 133, 244, 0.3);
+            border: 1px solid #448aff;
+        }
+        
+        .zoom-slider-container {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .zoom-display {
+            font-size: 12px;
+            color: #82b1ff;
+            font-weight: bold;
+            background: rgba(0,0,0,0.3);
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid #448aff;
+        }
+        
+        .zoom-indicator {
+            font-size: 11px;
+            color: #ffaa00;
+            background: rgba(255,170,0,0.1);
+            padding: 3px 8px;
+            border-radius: 10px;
+            border: 1px solid #ffaa00;
+            display: none;
+        }
+        
         .chart-container {
             width: 100%;
             height: 300px;
             margin-bottom: 12px;
             position: relative;
+            cursor: crosshair;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid #444;
         }
         
         #spectrumCanvas {
             width: 100%;
             height: 100%;
             background: #000;
-            border-radius: 8px;
-            border: 1px solid #444;
             display: block;
+        }
+        
+        .selection-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            border: 2px dashed #ffaa00;
+            background: rgba(255, 170, 0, 0.1);
+            display: none;
+        }
+        
+        .zoom-section {
+            background: rgba(30, 30, 70, 0.95);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border: 1px solid #448aff;
+            display: none;
+        }
+        
+        .zoom-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .zoom-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #82b1ff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .zoom-chart-container {
+            width: 100%;
+            height: 200px;
+            background: #000;
+            border-radius: 6px;
+            border: 1px solid #444;
+        }
+        
+        #zoomCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .zoom-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+        
+        .zoom-info-item {
+            background: rgba(40, 40, 80, 0.9);
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #448aff;
+        }
+        
+        .zoom-info-label {
+            font-size: 11px;
+            color: #bbdefb;
+            margin-bottom: 4px;
+        }
+        
+        .zoom-info-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .zoom-info-unit {
+            font-size: 10px;
+            color: #78909c;
+            margin-left: 4px;
         }
         
         .metrics-container {
@@ -316,22 +460,26 @@
             color: #78909c;
         }
         
-        @media (max-width: 480px) {
-            .controls { flex-wrap: wrap; }
-            .controls button { flex: 1 0 calc(50% - 8px); }
-            .chart-container { height: 260px; }
+        @media (max-width: 768px) {
+            .controls { flex-direction: column; }
+            .controls button { width: 100%; }
+            .zoom-controls { flex-direction: column; align-items: stretch; }
+            .zoom-slider-container { min-width: 100%; }
+            .chart-container { height: 250px; }
+            .zoom-chart-container { height: 150px; }
             .video-container { height: 140px; }
             button { min-height: 48px; }
             .metrics-container { grid-template-columns: 1fr; }
             .regions-container { grid-template-columns: repeat(2, 1fr); }
+            .zoom-info { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🔬 ESPECTROFOTÔMETRO FINAL - MELHORADO</h1>
-            <p class="subtitle">Análise espectral completa • PPFD • Intensidades regionais</p>
+            <h1>🔬 ESPECTROFOTÔMETRO COM ZOOM</h1>
+            <p class="subtitle">Análise regional • Zoom seletivo • PPFD detalhado</p>
         </header>
         
         <section class="video-section">
@@ -361,8 +509,53 @@
         </section>
         
         <section class="spectrum-section">
-            <div class="chart-container">
+            <div class="zoom-controls">
+                <div class="zoom-label">
+                    <span>🔍 ZOOM</span>
+                    <span class="zoom-indicator" id="zoomIndicator">Seleção ativa</span>
+                </div>
+                
+                <div class="zoom-buttons">
+                    <button class="zoom-btn" id="zoomOutBtn">-</button>
+                    <button class="zoom-btn" id="zoomResetBtn">1:1</button>
+                    <button class="zoom-btn" id="zoomInBtn">+</button>
+                </div>
+                
+                <div class="zoom-slider-container">
+                    <input type="range" id="zoomSlider" min="1" max="20" value="1" step="0.5">
+                </div>
+                
+                <div class="zoom-display" id="zoomDisplay">1x</div>
+                
+                <button id="analyzeSelectionBtn" style="display: none; min-width: 140px;">
+                    <span style="font-size: 15px;">📐</span> ANALISAR REGIÃO
+                </button>
+            </div>
+            
+            <div class="chart-container" id="chartContainer">
                 <canvas id="spectrumCanvas"></canvas>
+                <div class="selection-overlay" id="selectionOverlay"></div>
+            </div>
+            
+            <!-- Seção de Zoom (aparece quando uma região é selecionada) -->
+            <div class="zoom-section" id="zoomSection">
+                <div class="zoom-header">
+                    <div class="zoom-title">
+                        <span style="font-size: 16px;">🔬</span>
+                        ANÁLISE DA REGIÃO SELECIONADA
+                    </div>
+                    <div style="font-size: 11px; color: #ffaa00;">
+                        <span id="zoomRangeDisplay">300-800 nm</span>
+                    </div>
+                </div>
+                
+                <div class="zoom-chart-container">
+                    <canvas id="zoomCanvas"></canvas>
+                </div>
+                
+                <div class="zoom-info" id="zoomInfo">
+                    <!-- Informações da região serão preenchidas via JavaScript -->
+                </div>
             </div>
             
             <!-- Métricas principais -->
@@ -426,12 +619,16 @@
                     <div>MODO</div>
                     <div class="status-value" id="modeValue">LIVE</div>
                 </div>
+                <div class="status-item">
+                    <div>ZOOM</div>
+                    <div class="status-value" id="zoomStatus">1x</div>
+                </div>
             </div>
         </section>
         
         <footer>
-            <p>Espectrofotômetro Final v6.0 • Com PPFD e análise regional • Modo congelamento</p>
-            <p>🌿 Regiões: Azul (450nm) • Verde (550nm) • Vermelho (660nm) • Far-Red (730nm)</p>
+            <p>Espectrofotômetro v7.0 • Zoom seletivo • Análise por região • Modo congelamento</p>
+            <p>🔍 Para analisar uma região: Arraste sobre o gráfico principal e clique em "ANALISAR REGIÃO"</p>
         </footer>
     </div>
 
@@ -450,7 +647,8 @@
                 { name: 'Vermelho', min: 600, max: 700, color: '#ff4500', icon: '🔴' },
                 { name: 'Far-Red', min: 700, max: 800, color: '#8b0000', icon: '🟤' }
             ],
-            parRange: { min: 400, max: 700 } // Faixa PAR para PPFD
+            parRange: { min: 400, max: 700 },
+            fullRange: { min: 300, max: 800 }
         };
         
         // ========== ELEMENTOS DOM ==========
@@ -463,6 +661,23 @@
         const freezeIndicator = document.getElementById('freezeIndicator');
         const canvas = document.getElementById('spectrumCanvas');
         const ctx = canvas.getContext('2d', { alpha: false });
+        const zoomCanvas = document.getElementById('zoomCanvas');
+        const zoomCtx = zoomCanvas.getContext('2d', { alpha: false });
+        const chartContainer = document.getElementById('chartContainer');
+        const selectionOverlay = document.getElementById('selectionOverlay');
+        const zoomSection = document.getElementById('zoomSection');
+        const zoomInfo = document.getElementById('zoomInfo');
+        const zoomRangeDisplay = document.getElementById('zoomRangeDisplay');
+        const zoomIndicator = document.getElementById('zoomIndicator');
+        const analyzeSelectionBtn = document.getElementById('analyzeSelectionBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const zoomResetBtn = document.getElementById('zoomResetBtn');
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomSlider = document.getElementById('zoomSlider');
+        const zoomDisplay = document.getElementById('zoomDisplay');
+        const zoomStatus = document.getElementById('zoomStatus');
+        
+        // Elementos de controle existentes
         const saturationSlider = document.getElementById('saturationSlider');
         const saturationValue = document.getElementById('saturationValue');
         const speedSlider = document.getElementById('speedSlider');
@@ -490,6 +705,15 @@
         let frozenRegions = null;
         let frozenPPFD = 0;
         
+        // Variáveis para zoom e seleção
+        let zoomLevel = 1;
+        let isSelecting = false;
+        let selectionStart = { x: 0, y: 0 };
+        let selectionEnd = { x: 0, y: 0 };
+        let currentSelection = null;
+        let isZoomActive = false;
+        let zoomXRange = { min: 300, max: 800 };
+        
         // Histórico para suavização
         const spectrumHistory = [];
         const HISTORY_SIZE = 5;
@@ -497,8 +721,9 @@
         // ========== INICIALIZAÇÃO ==========
         function init() {
             updateCanvasSize();
+            updateZoomCanvasSize();
             
-            // Configurar controles
+            // Configurar controles existentes
             saturationSlider.addEventListener('input', () => {
                 const value = saturationSlider.value;
                 saturationValue.textContent = `${value}%`;
@@ -513,14 +738,24 @@
             // Configurar botão de congelamento
             freezeBtn.addEventListener('click', toggleFreeze);
             
+            // Configurar controles de zoom
+            setupZoomControls();
+            
+            // Configurar seleção por arraste
+            setupSelection();
+            
             // Configurações iniciais
             saturationValue.textContent = '80%';
             speedValue.textContent = 'Normal';
             resValue.textContent = '0.5 nm';
             modeValue.textContent = 'LIVE';
+            zoomStatus.textContent = '1x';
             
             // Inicializar regiões
             initializeRegions();
+            
+            // Inicializar informações de zoom
+            initializeZoomInfo();
             
             // Desenhar estado inicial
             drawEmptySpectrum();
@@ -536,6 +771,1098 @@
             canvas.width = Math.floor(rect.width * dpr);
             canvas.height = Math.floor(300 * dpr);
             ctx.scale(dpr, dpr);
+        }
+        
+        function updateZoomCanvasSize() {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = zoomCanvas.getBoundingClientRect();
+            
+            zoomCanvas.width = Math.floor(rect.width * dpr);
+            zoomCanvas.height = Math.floor(200 * dpr);
+            zoomCtx.scale(dpr, dpr);
+        }
+        
+        function setupZoomControls() {
+            // Botões de zoom
+            zoomOutBtn.addEventListener('click', () => {
+                zoomLevel = Math.max(1, zoomLevel - 1);
+                updateZoomControls();
+                if (currentSelection) {
+                    analyzeSelectedRegion(currentSelection);
+                }
+            });
+            
+            zoomInBtn.addEventListener('click', () => {
+                zoomLevel = Math.min(20, zoomLevel + 1);
+                updateZoomControls();
+                if (currentSelection) {
+                    analyzeSelectedRegion(currentSelection);
+                }
+            });
+            
+            zoomResetBtn.addEventListener('click', () => {
+                zoomLevel = 1;
+                updateZoomControls();
+                if (currentSelection) {
+                    analyzeSelectedRegion(currentSelection);
+                }
+            });
+            
+            // Slider de zoom
+            zoomSlider.addEventListener('input', () => {
+                zoomLevel = parseFloat(zoomSlider.value);
+                updateZoomControls();
+                if (currentSelection) {
+                    analyzeSelectedRegion(currentSelection);
+                }
+            });
+            
+            // Botão de análise de região
+            analyzeSelectionBtn.addEventListener('click', () => {
+                if (currentSelection) {
+                    analyzeSelectedRegion(currentSelection);
+                }
+            });
+        }
+        
+        function updateZoomControls() {
+            zoomSlider.value = zoomLevel;
+            zoomDisplay.textContent = zoomLevel.toFixed(1) + 'x';
+            zoomStatus.textContent = zoomLevel.toFixed(1) + 'x';
+        }
+        
+        function setupSelection() {
+            chartContainer.addEventListener('mousedown', startSelection);
+            chartContainer.addEventListener('touchstart', startSelectionTouch);
+            
+            chartContainer.addEventListener('mousemove', updateSelection);
+            chartContainer.addEventListener('touchmove', updateSelectionTouch);
+            
+            chartContainer.addEventListener('mouseup', endSelection);
+            chartContainer.addEventListener('touchend', endSelection);
+            
+            // Cancelar seleção ao clicar fora
+            document.addEventListener('mousedown', (e) => {
+                if (!chartContainer.contains(e.target)) {
+                    cancelSelection();
+                }
+            });
+        }
+        
+        function startSelection(e) {
+            if (!isCameraActive) return;
+            
+            const rect = chartContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            isSelecting = true;
+            selectionStart = { x, y };
+            selectionEnd = { x, y };
+            selectionOverlay.style.display = 'block';
+            updateSelectionOverlay();
+            
+            analyzeSelectionBtn.style.display = 'flex';
+            zoomIndicator.style.display = 'inline-flex';
+        }
+        
+        function startSelectionTouch(e) {
+            if (!isCameraActive) return;
+            e.preventDefault();
+            
+            const rect = chartContainer.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            isSelecting = true;
+            selectionStart = { x, y };
+            selectionEnd = { x, y };
+            selectionOverlay.style.display = 'block';
+            updateSelectionOverlay();
+            
+            analyzeSelectionBtn.style.display = 'flex';
+            zoomIndicator.style.display = 'inline-flex';
+        }
+        
+        function updateSelection(e) {
+            if (!isSelecting) return;
+            
+            const rect = chartContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            selectionEnd = { x, y };
+            updateSelectionOverlay();
+        }
+        
+        function updateSelectionTouch(e) {
+            if (!isSelecting) return;
+            e.preventDefault();
+            
+            const rect = chartContainer.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            selectionEnd = { x, y };
+            updateSelectionOverlay();
+        }
+        
+        function endSelection() {
+            if (!isSelecting) return;
+            
+            isSelecting = false;
+            
+            // Garantir que a seleção tenha tamanho mínimo
+            const width = Math.abs(selectionEnd.x - selectionStart.x);
+            const height = Math.abs(selectionEnd.y - selectionStart.y);
+            
+            if (width < 10 || height < 10) {
+                cancelSelection();
+                return;
+            }
+            
+            // Salvar seleção atual
+            currentSelection = {
+                x1: Math.min(selectionStart.x, selectionEnd.x),
+                y1: Math.min(selectionStart.y, selectionEnd.y),
+                x2: Math.max(selectionStart.x, selectionEnd.x),
+                y2: Math.max(selectionStart.y, selectionEnd.y)
+            };
+            
+            // Analisar a região selecionada
+            analyzeSelectedRegion(currentSelection);
+        }
+        
+        function cancelSelection() {
+            isSelecting = false;
+            selectionOverlay.style.display = 'none';
+            analyzeSelectionBtn.style.display = 'none';
+            zoomIndicator.style.display = 'none';
+            currentSelection = null;
+            zoomSection.style.display = 'none';
+            isZoomActive = false;
+        }
+        
+        function updateSelectionOverlay() {
+            const x = Math.min(selectionStart.x, selectionEnd.x);
+            const y = Math.min(selectionStart.y, selectionEnd.y);
+            const width = Math.abs(selectionEnd.x - selectionStart.x);
+            const height = Math.abs(selectionEnd.y - selectionStart.y);
+            
+            selectionOverlay.style.left = x + 'px';
+            selectionOverlay.style.top = y + 'px';
+            selectionOverlay.style.width = width + 'px';
+            selectionOverlay.style.height = height + 'px';
+        }
+        
+        function analyzeSelectedRegion(selection) {
+            if (!currentSpectrum || currentSpectrum.length === 0) return;
+            
+            // Converter coordenadas de pixels para comprimento de onda
+            const chartWidth = canvas.width / (window.devicePixelRatio || 1);
+            const chartHeight = canvas.height / (window.devicePixelRatio || 1);
+            
+            // Calcular faixa de comprimentos de onda selecionada
+            const minWavelength = CONFIG.fullRange.min;
+            const maxWavelength = CONFIG.fullRange.max;
+            const totalRange = maxWavelength - minWavelength;
+            
+            const xToWavelength = (x) => {
+                const marginLeft = 40;
+                const marginRight = 20;
+                const graphWidth = chartWidth - marginLeft - marginRight;
+                const normalizedX = (x - marginLeft) / graphWidth;
+                return minWavelength + normalizedX * totalRange;
+            };
+            
+            const wavelengthStart = Math.max(minWavelength, xToWavelength(selection.x1));
+            const wavelengthEnd = Math.min(maxWavelength, xToWavelength(selection.x2));
+            
+            // Filtrar espectro para a região selecionada
+            const filteredSpectrum = currentSpectrum.filter(point => 
+                point.wavelength >= wavelengthStart && point.wavelength <= wavelengthEnd
+            );
+            
+            if (filteredSpectrum.length === 0) return;
+            
+            // Atualizar display da faixa
+            zoomRangeDisplay.textContent = `${Math.round(wavelengthStart)}-${Math.round(wavelengthEnd)} nm`;
+            zoomXRange = { min: wavelengthStart, max: wavelengthEnd };
+            
+            // Calcular métricas da região
+            const regionMetrics = calculateRegionMetrics(filteredSpectrum);
+            
+            // Atualizar informações de zoom
+            updateZoomInfo(regionMetrics);
+            
+            // Desenhar gráfico de zoom
+            drawZoomSpectrum(filteredSpectrum, regionMetrics);
+            
+            // Mostrar seção de zoom
+            zoomSection.style.display = 'block';
+            isZoomActive = true;
+        }
+        
+        function calculateRegionMetrics(spectrum) {
+            if (!spectrum || spectrum.length === 0) {
+                return {
+                    minWavelength: 0,
+                    maxWavelength: 0,
+                    range: 0,
+                    avgIntensity: 0,
+                    maxIntensity: 0,
+                    peakWavelength: 0,
+                    ppfd: 0,
+                    spectralWidth: 0
+                };
+            }
+            
+            // Encontrar valores mínimos e máximos
+            let minWavelength = Infinity;
+            let maxWavelength = -Infinity;
+            let sumIntensity = 0;
+            let maxIntensity = 0;
+            let peakWavelength = 0;
+            let sumPPFD = 0;
+            let ppfdCount = 0;
+            
+            spectrum.forEach(point => {
+                minWavelength = Math.min(minWavelength, point.wavelength);
+                maxWavelength = Math.max(maxWavelength, point.wavelength);
+                sumIntensity += point.intensity;
+                
+                if (point.intensity > maxIntensity) {
+                    maxIntensity = point.intensity;
+                    peakWavelength = point.wavelength;
+                }
+                
+                // Calcular contribuição para PPFD (apenas na faixa PAR)
+                if (point.wavelength >= CONFIG.parRange.min && point.wavelength <= CONFIG.parRange.max) {
+                    sumPPFD += point.intensity;
+                    ppfdCount++;
+                }
+            });
+            
+            // Calcular largura espectral (FWHM - Full Width at Half Maximum)
+            const halfMax = maxIntensity / 2;
+            let leftWavelength = minWavelength;
+            let rightWavelength = maxWavelength;
+            
+            for (let i = 0; i < spectrum.length; i++) {
+                if (spectrum[i].intensity >= halfMax) {
+                    leftWavelength = spectrum[i].wavelength;
+                    break;
+                }
+            }
+            
+            for (let i = spectrum.length - 1; i >= 0; i--) {
+                if (spectrum[i].intensity >= halfMax) {
+                    rightWavelength = spectrum[i].wavelength;
+                    break;
+                }
+            }
+            
+            const spectralWidth = rightWavelength - leftWavelength;
+            
+            return {
+                minWavelength: Math.round(minWavelength * 10) / 10,
+                maxWavelength: Math.round(maxWavelength * 10) / 10,
+                range: Math.round((maxWavelength - minWavelength) * 10) / 10,
+                avgIntensity: (sumIntensity / spectrum.length).toFixed(2),
+                maxIntensity: maxIntensity.toFixed(2),
+                peakWavelength: Math.round(peakWavelength),
+                ppfd: ppfdCount > 0 ? (sumPPFD / ppfdCount * 2.5).toFixed(1) : '0.0',
+                spectralWidth: Math.round(spectralWidth)
+            };
+        }
+        
+        function initializeZoomInfo() {
+            const zoomInfoItems = [
+                { id: 'zoomMinWavelength', label: 'Comprimento Mínimo', unit: 'nm' },
+                { id: 'zoomMaxWavelength', label: 'Comprimento Máximo', unit: 'nm' },
+                { id: 'zoomRange', label: 'Largura da Faixa', unit: 'nm' },
+                { id: 'zoomAvgIntensity', label: 'Intensidade Média', unit: '' },
+                { id: 'zoomPeakIntensity', label: 'Intensidade Máxima', unit: '' },
+                { id: 'zoomPeakWavelength', label: 'Pico Espectral', unit: 'nm' },
+                { id: 'zoomPPFD', label: 'PPFD Regional', unit: 'μmol/m²/s' },
+                { id: 'zoomSpectralWidth', label: 'Largura Espectral', unit: 'nm' }
+            ];
+            
+            zoomInfoItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'zoom-info-item';
+                div.id = item.id;
+                div.innerHTML = `
+                    <div class="zoom-info-label">${item.label}</div>
+                    <div class="zoom-info-value">0<span class="zoom-info-unit">${item.unit}</span></div>
+                `;
+                zoomInfo.appendChild(div);
+            });
+        }
+        
+        function updateZoomInfo(metrics) {
+            document.getElementById('zoomMinWavelength').querySelector('.zoom-info-value').innerHTML = 
+                `${metrics.minWavelength}<span class="zoom-info-unit">nm</span>`;
+            
+            document.getElementById('zoomMaxWavelength').querySelector('.zoom-info-value').innerHTML = 
+                `${metrics.maxWavelength}<span class="zoom-info-unit">nm</span>`;
+            
+            document.getElementById('zoomRange').querySelector('.zoom-info-value').innerHTML = 
+                `${metrics.range}<span class="zoom-info-unit">nm</span>`;
+            
+            document.getElementById('zoomAvgIntensity').querySelector('.zoom-info-value').innerHTML = 
+                `${metrics.avgIntensity}<span class="zoom-info-unit"></span>`;
+            
+            document.getElementById('zoomPeakIntensity').querySelector('.zoom-info-value').innerHTML = 
+                `${metrics.maxIntensity}<span class="zoom-info-unit"></span>`;
+            
+            document.getElementById('zoomPeakWavelength').querySelector('.zoom-info-value').innerHTML = 
+                `${metrics.peakWavelength}<span class="zoom-info-unit">nm</span>`;
+            
+            document.getElementById('zoomPPFD').querySelector('.zoom-info-value').innerHTML = 
+                `${metrics.ppfd}<span class="zoom-info-unit">μmol/m²/s</span>`;
+            
+            document.getElementById('zoomSpectralWidth').querySelector('.zoom-info-value').innerHTML = 
+                `${metrics.spectralWidth}<span class="zoom-info-unit">nm</span>`;
+        }
+        
+        function drawZoomSpectrum(spectrum, metrics) {
+            const width = zoomCanvas.width;
+            const height = zoomCanvas.height;
+            const dpr = window.devicePixelRatio || 1;
+            const displayWidth = width / dpr;
+            const displayHeight = height / dpr;
+            
+            // Limpar canvas
+            zoomCtx.fillStyle = '#000000';
+            zoomCtx.fillRect(0, 0, displayWidth, displayHeight);
+            
+            // Encontrar intensidade máxima para escala
+            let maxIntensity = 1;
+            spectrum.forEach(point => {
+                if (point.intensity > maxIntensity) maxIntensity = point.intensity;
+            });
+            
+            // Desenhar grade
+            drawZoomGrid(displayWidth, displayHeight, metrics.minWavelength, metrics.maxWavelength);
+            
+            // Desenhar linha do espectro
+            drawZoomSpectrumLine(spectrum, displayWidth, displayHeight, maxIntensity, metrics);
+            
+            // Desenhar rótulos
+            drawZoomLabels(displayWidth, displayHeight, metrics);
+        }
+        
+        function drawZoomGrid(width, height, minWavelength, maxWavelength) {
+            const range = maxWavelength - minWavelength;
+            
+            // Grade de fundo
+            zoomCtx.strokeStyle = 'rgba(66, 133, 244, 0.15)';
+            zoomCtx.lineWidth = 0.5;
+            
+            // Linhas horizontais
+            for (let i = 1; i <= 5; i++) {
+                const y = 30 + (i * (height - 60) / 6);
+                zoomCtx.beginPath();
+                zoomCtx.moveTo(40, y);
+                zoomCtx.lineTo(width - 20, y);
+                zoomCtx.stroke();
+            }
+            
+            // Linhas verticais (baseadas na faixa de zoom)
+            const step = Math.pow(10, Math.floor(Math.log10(range / 5)));
+            const firstTick = Math.ceil(minWavelength / step) * step;
+            
+            for (let wl = firstTick; wl <= maxWavelength; wl += step) {
+                const x = 40 + ((wl - minWavelength) / range) * (width - 60);
+                zoomCtx.beginPath();
+                zoomCtx.moveTo(x, 30);
+                zoomCtx.lineTo(x, height - 30);
+                zoomCtx.stroke();
+            }
+            
+            // Eixos principais
+            zoomCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            zoomCtx.lineWidth = 1;
+            
+            // Eixo X
+            zoomCtx.beginPath();
+            zoomCtx.moveTo(40, height - 30);
+            zoomCtx.lineTo(width - 20, height - 30);
+            zoomCtx.stroke();
+            
+            // Eixo Y
+            zoomCtx.beginPath();
+            zoomCtx.moveTo(40, 30);
+            zoomCtx.lineTo(40, height - 30);
+            zoomCtx.stroke();
+        }
+        
+        function drawZoomSpectrumLine(spectrum, width, height, maxIntensity, metrics) {
+            const range = metrics.maxWavelength - metrics.minWavelength;
+            
+            // Criar gradiente espectral baseado na faixa
+            const lineGradient = zoomCtx.createLinearGradient(40, 0, width - 20, 0);
+            
+            // Adicionar cores baseadas no comprimento de onda
+            const colorStops = [
+                { pos: 0.0, color: '#8a2be2' },  // Violeta
+                { pos: 0.3, color: '#4169e1' },  // Azul
+                { pos: 0.5, color: '#32cd32' },  // Verde
+                { pos: 0.7, color: '#ffd700' },  // Amarelo
+                { pos: 0.9, color: '#ff4500' },  // Vermelho
+                { pos: 1.0, color: '#8b0000' }   // Vermelho escuro
+            ];
+            
+            colorStops.forEach(stop => {
+                lineGradient.addColorStop(stop.pos, stop.color);
+            });
+            
+            // Desenhar linha suave
+            zoomCtx.beginPath();
+            zoomCtx.lineWidth = 3 * zoomLevel;
+            zoomCtx.strokeStyle = lineGradient;
+            zoomCtx.lineJoin = 'round';
+            zoomCtx.lineCap = 'round';
+            
+            const points = [];
+            const step = Math.max(1, Math.floor(spectrum.length / 200));
+            
+            for (let i = 0; i < spectrum.length; i += step) {
+                const point = spectrum[i];
+                const x = 40 + ((point.wavelength - metrics.minWavelength) / range) * (width - 60);
+                const y = height - 30 - (point.intensity / maxIntensity * (height - 60));
+                
+                points.push({ x, y });
+                
+                if (i === 0) {
+                    zoomCtx.moveTo(x, y);
+                } else if (i >= step) {
+                    const prev = points[points.length - 2];
+                    const cp1x = prev.x + (x - prev.x) * 0.5;
+                    const cp1y = prev.y;
+                    const cp2x = prev.x + (x - prev.x) * 0.5;
+                    const cp2y = y;
+                    
+                    zoomCtx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
+                }
+            }
+            
+            zoomCtx.stroke();
+            
+            // Destacar pico espectral
+            if (metrics.peakWavelength) {
+                const peakX = 40 + ((metrics.peakWavelength - metrics.minWavelength) / range) * (width - 60);
+                const peakY = height - 30 - (parseFloat(metrics.maxIntensity) / maxIntensity * (height - 60));
+                
+                // Marcador do pico
+                zoomCtx.beginPath();
+                zoomCtx.arc(peakX, peakY, 6, 0, Math.PI * 2);
+                zoomCtx.fillStyle = '#ff0000';
+                zoomCtx.fill();
+                zoomCtx.strokeStyle = 'white';
+                zoomCtx.lineWidth = 1;
+                zoomCtx.stroke();
+                
+                // Linha vertical do pico
+                zoomCtx.beginPath();
+                zoomCtx.setLineDash([2, 2]);
+                zoomCtx.moveTo(peakX, peakY);
+                zoomCtx.lineTo(peakX, height - 30);
+                zoomCtx.strokeStyle = '#ff0000';
+                zoomCtx.lineWidth = 1;
+                zoomCtx.stroke();
+                zoomCtx.setLineDash([]);
+            }
+            
+            // Preenchimento abaixo da linha
+            zoomCtx.lineTo(width - 20, height - 30);
+            zoomCtx.lineTo(40, height - 30);
+            zoomCtx.closePath();
+            
+            const fillGradient = zoomCtx.createLinearGradient(0, 0, 0, height);
+            fillGradient.addColorStop(0, 'rgba(66, 133, 244, 0.15)');
+            fillGradient.addColorStop(1, 'rgba(66, 133, 244, 0.01)');
+            zoomCtx.fillStyle = fillGradient;
+            zoomCtx.fill();
+        }
+        
+        function drawZoomLabels(width, height, metrics) {
+            // Título do zoom
+            zoomCtx.fillStyle = '#82b1ff';
+            zoomCtx.font = 'bold 12px "Segoe UI", sans-serif';
+            zoomCtx.textAlign = 'left';
+            zoomCtx.fillText(`ZOOM ${zoomLevel.toFixed(1)}x: ${Math.round(metrics.minWavelength)}-${Math.round(metrics.maxWavelength)} nm`, 45, 25);
+            
+            // Rótulos do eixo X
+            const range = metrics.maxWavelength - metrics.minWavelength;
+            const step = Math.pow(10, Math.floor(Math.log10(range / 4)));
+            const firstTick = Math.ceil(metrics.minWavelength / step) * step;
+            
+            zoomCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            zoomCtx.font = '10px "Courier New", monospace';
+            zoomCtx.textAlign = 'center';
+            
+            for (let wl = firstTick; wl <= metrics.maxWavelength; wl += step) {
+                const x = 40 + ((wl - metrics.minWavelength) / range) * (width - 60);
+                
+                // Marcador
+                zoomCtx.beginPath();
+                zoomCtx.moveTo(x, height - 30);
+                zoomCtx.lineTo(x, height - 28);
+                zoomCtx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                zoomCtx.lineWidth = 1;
+                zoomCtx.stroke();
+                
+                // Texto
+                zoomCtx.fillText(wl + ' nm', x, height - 20);
+            }
+            
+            // Eixo Y
+            zoomCtx.save();
+            zoomCtx.translate(20, height / 2);
+            zoomCtx.rotate(-Math.PI / 2);
+            zoomCtx.textAlign = 'center';
+            zoomCtx.font = '10px "Segoe UI", sans-serif';
+            zoomCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            zoomCtx.fillText('INTENSIDADE RELATIVA', 0, 0);
+            zoomCtx.restore();
+            
+            // Informação do pico
+            if (metrics.peakWavelength) {
+                zoomCtx.fillStyle = '#ff4444';
+                zoomCtx.font = '10px Arial';
+                zoomCtx.textAlign = 'right';
+                zoomCtx.fillText(`Pico: ${metrics.peakWavelength} nm`, width - 25, 25);
+            }
+        }
+        
+        // ========== CONTINUAÇÃO DO CÓDIGO ANTERIOR ==========
+        // (Mantendo todas as funções existentes de análise de câmera, renderização, etc.)
+        
+        // Para evitar que a resposta fique muito longa, vou manter o restante do código
+        // que controla a câmera, análise e renderização principal
+        // As funções abaixo são as mesmas da versão anterior
+        
+        function startAnalysis() {
+            if (animationId) cancelAnimationFrame(animationId);
+            
+            let lastAnalysisTime = 0;
+            
+            function analysisLoop(timestamp) {
+                if (!isCameraActive) return;
+                
+                const speed = CONFIG.speedLevels[speedSlider.value];
+                const now = Date.now();
+                
+                if (now - lastAnalysisTime >= speed.interval && !isFrozen) {
+                    analyzeFrame();
+                    lastAnalysisTime = now;
+                } else if (isFrozen) {
+                    renderFrozenData();
+                }
+                
+                animationId = requestAnimationFrame(analysisLoop);
+            }
+            
+            animationId = requestAnimationFrame(analysisLoop);
+        }
+        
+        function analyzeFrame() {
+            if (!isCameraActive || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+            
+            try {
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                tempCanvas.width = 320;
+                tempCanvas.height = 240;
+                tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+                
+                const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                const data = imageData.data;
+                
+                const analysis = analyzeImage(data);
+                const spectrum = generateSpectrum(analysis);
+                
+                spectrumHistory.push(spectrum);
+                if (spectrumHistory.length > HISTORY_SIZE) spectrumHistory.shift();
+                
+                const smoothed = applyTemporalSmoothing(spectrumHistory);
+                currentSpectrum = smoothed;
+                
+                const regionalIntensities = calculateRegionalIntensities(smoothed);
+                const ppfd = calculatePPFD(smoothed);
+                const maxIntensityData = findMaxIntensity(smoothed);
+                
+                updateMetrics(regionalIntensities, ppfd, maxIntensityData);
+                updateSaturationInfo(smoothed);
+                
+                renderSpectrum(smoothed, regionalIntensities);
+                
+                frameCount++;
+                
+            } catch (error) {
+                console.debug('Análise ignorada');
+            }
+        }
+        
+        function renderFrozenData() {
+            if (!frozenSpectrum) return;
+            
+            const regionalIntensities = frozenRegions || calculateRegionalIntensities(frozenSpectrum);
+            const ppfd = frozenPPFD || calculatePPFD(frozenSpectrum);
+            const maxIntensityData = findMaxIntensity(frozenSpectrum);
+            
+            updateMetrics(regionalIntensities, ppfd, maxIntensityData);
+            renderSpectrum(frozenSpectrum, regionalIntensities);
+        }
+        
+        function analyzeImage(data) {
+            const analysis = { r: 0, g: 0, b: 0, count: 0 };
+            
+            for (let i = 0; i < data.length; i += 16) {
+                analysis.r += data[i];
+                analysis.g += data[i + 1];
+                analysis.b += data[i + 2];
+                analysis.count++;
+            }
+            
+            if (analysis.count > 0) {
+                analysis.r /= analysis.count;
+                analysis.g /= analysis.count;
+                analysis.b /= analysis.count;
+            }
+            
+            return analysis;
+        }
+        
+        function generateSpectrum(analysis) {
+            const spectrum = [];
+            
+            for (let wavelength = 300; wavelength <= 800; wavelength += 0.5) {
+                let intensity = 0;
+                
+                const contributions = [
+                    { center: 380, width: 35, weight: analysis.b * 0.6 },
+                    { center: 450, width: 30, weight: analysis.b * 0.9 },
+                    { center: 490, width: 25, weight: (analysis.g + analysis.b) * 0.4 },
+                    { center: 540, width: 30, weight: analysis.g * 0.8 },
+                    { center: 580, width: 25, weight: (analysis.r + analysis.g) * 0.5 },
+                    { center: 610, width: 30, weight: analysis.r * 0.6 },
+                    { center: 660, width: 35, weight: analysis.r * 0.8 },
+                    { center: 720, width: 45, weight: analysis.r * 0.5 }
+                ];
+                
+                contributions.forEach(contrib => {
+                    intensity += contrib.weight * gaussian(wavelength, contrib.center, contrib.width);
+                });
+                
+                const avg = (analysis.r + analysis.g + analysis.b) / 3;
+                intensity += avg * 0.2 * gaussian(wavelength, 550, 180);
+                intensity += (Math.random() - 0.5) * 0.3;
+                
+                spectrum.push({
+                    wavelength: wavelength,
+                    intensity: intensity
+                });
+            }
+            
+            return spectrum;
+        }
+        
+        function applyTemporalSmoothing(history) {
+            if (history.length === 0) return [];
+            if (history.length === 1) return history[0];
+            
+            const smoothed = [];
+            const weights = [0.1, 0.15, 0.25, 0.25, 0.25];
+            
+            for (let i = 0; i < history[0].length; i++) {
+                let total = 0;
+                let weightSum = 0;
+                
+                for (let j = 0; j < history.length; j++) {
+                    const weight = weights[Math.min(j, weights.length - 1)];
+                    total += history[j][i].intensity * weight;
+                    weightSum += weight;
+                }
+                
+                smoothed.push({
+                    wavelength: history[0][i].wavelength,
+                    intensity: total / weightSum
+                });
+            }
+            
+            return smoothed;
+        }
+        
+        function calculateRegionalIntensities(spectrum) {
+            const intensities = {};
+            
+            CONFIG.regions.forEach(region => {
+                let sum = 0;
+                let count = 0;
+                
+                for (const point of spectrum) {
+                    if (point.wavelength >= region.min && point.wavelength <= region.max) {
+                        sum += point.intensity;
+                        count++;
+                    }
+                }
+                
+                intensities[region.name] = count > 0 ? (sum / count) : 0;
+            });
+            
+            return intensities;
+        }
+        
+        function calculatePPFD(spectrum) {
+            let sum = 0;
+            let count = 0;
+            
+            for (const point of spectrum) {
+                if (point.wavelength >= CONFIG.parRange.min && point.wavelength <= CONFIG.parRange.max) {
+                    sum += point.intensity;
+                    count++;
+                }
+            }
+            
+            const avgIntensity = count > 0 ? sum / count : 0;
+            return (avgIntensity * 2.5).toFixed(1);
+        }
+        
+        function findMaxIntensity(spectrum) {
+            let maxIntensity = 0;
+            let peakWavelength = 0;
+            
+            for (const point of spectrum) {
+                if (point.intensity > maxIntensity) {
+                    maxIntensity = point.intensity;
+                    peakWavelength = point.wavelength;
+                }
+            }
+            
+            return {
+                intensity: maxIntensity.toFixed(2),
+                wavelength: Math.round(peakWavelength)
+            };
+        }
+        
+        function updateMetrics(regionalIntensities, ppfd, maxIntensityData) {
+            ppfdValue.textContent = ppfd;
+            maxIntensityValue.textContent = maxIntensityData.intensity;
+            peakWavelengthValue.textContent = maxIntensityData.wavelength;
+            updateRegionsUI(regionalIntensities);
+        }
+        
+        function initializeRegions() {
+            CONFIG.regions.forEach(region => {
+                const regionCard = document.createElement('div');
+                regionCard.className = 'region-card';
+                regionCard.style.borderLeft = `3px solid ${region.color}`;
+                regionCard.innerHTML = `
+                    <div class="region-name">${region.icon} ${region.name}</div>
+                    <div class="region-value" id="regionValue${region.name}">0.00</div>
+                    <div class="region-wavelength">${region.min}-${region.max}nm</div>
+                `;
+                regionsContainer.appendChild(regionCard);
+            });
+        }
+        
+        function updateRegionsUI(intensities) {
+            CONFIG.regions.forEach(region => {
+                const valueElement = document.getElementById(`regionValue${region.name}`);
+                if (valueElement) {
+                    const value = intensities[region.name] || 0;
+                    valueElement.textContent = value.toFixed(2);
+                    valueElement.style.color = region.color;
+                }
+            });
+        }
+        
+        function renderSpectrum(spectrum, regionalIntensities = {}) {
+            if (!spectrum || spectrum.length === 0) return;
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            const dpr = window.devicePixelRatio || 1;
+            const displayWidth = width / dpr;
+            const displayHeight = height / dpr;
+            
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, displayWidth, displayHeight);
+            
+            drawGridAndAxes(displayWidth, displayHeight);
+            
+            let currentMax = 1;
+            for (const point of spectrum) {
+                if (point.intensity > currentMax) currentMax = point.intensity;
+            }
+            
+            maxIntensity = maxIntensity * 0.95 + currentMax * 0.05;
+            
+            let saturationLimit = autoSaturation ? maxIntensity : 
+                                 (parseInt(saturationSlider.value) / 100) * maxIntensity;
+            saturationLimit = Math.max(saturationLimit, 1);
+            
+            drawColoredSpectrumLine(spectrum, displayWidth, displayHeight, saturationLimit);
+            drawLabelsAndInfo(displayWidth, displayHeight, spectrum.length);
+            drawRegionIndicators(displayWidth, displayHeight, regionalIntensities);
+        }
+        
+        function drawGridAndAxes(width, height) {
+            ctx.strokeStyle = 'rgba(66, 133, 244, 0.15)';
+            ctx.lineWidth = 0.5;
+            
+            for (let i = 1; i <= 5; i++) {
+                const y = 40 + (i * (height - 80) / 6);
+                ctx.beginPath();
+                ctx.moveTo(40, y);
+                ctx.lineTo(width - 20, y);
+                ctx.stroke();
+            }
+            
+            const wavelengths = [300, 380, 450, 530, 600, 700, 800];
+            wavelengths.forEach(wl => {
+                const x = 40 + ((wl - 300) / 500) * (width - 60);
+                ctx.beginPath();
+                ctx.moveTo(x, 40);
+                ctx.lineTo(x, height - 40);
+                ctx.stroke();
+            });
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 1;
+            
+            ctx.beginPath();
+            ctx.moveTo(40, height - 40);
+            ctx.lineTo(width - 20, height - 40);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(40, 40);
+            ctx.lineTo(40, height - 40);
+            ctx.stroke();
+        }
+        
+        function drawColoredSpectrumLine(spectrum, width, height, maxIntensity) {
+            const lineGradient = ctx.createLinearGradient(40, 0, width - 20, 0);
+            lineGradient.addColorStop(0.00, '#8a2be2');
+            lineGradient.addColorStop(0.15, '#4169e1');
+            lineGradient.addColorStop(0.30, '#00bfff');
+            lineGradient.addColorStop(0.45, '#32cd32');
+            lineGradient.addColorStop(0.60, '#ffd700');
+            lineGradient.addColorStop(0.75, '#ff8c00');
+            lineGradient.addColorStop(0.90, '#ff4500');
+            lineGradient.addColorStop(1.00, '#8b0000');
+            
+            ctx.beginPath();
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = lineGradient;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            
+            const step = Math.max(1, Math.floor(spectrum.length / 200));
+            const points = [];
+            
+            for (let i = 0; i < spectrum.length; i += step) {
+                const point = spectrum[i];
+                const x = 40 + ((point.wavelength - 300) / 500) * (width - 60);
+                const y = height - 40 - (point.intensity / maxIntensity * (height - 80));
+                
+                points.push({ x, y });
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else if (i >= step) {
+                    const prev = points[points.length - 2];
+                    const cp1x = prev.x + (x - prev.x) * 0.5;
+                    const cp1y = prev.y;
+                    const cp2x = prev.x + (x - prev.x) * 0.5;
+                    const cp2y = y;
+                    
+                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
+                }
+            }
+            
+            ctx.stroke();
+            
+            ctx.lineTo(width - 20, height - 40);
+            ctx.lineTo(40, height - 40);
+            ctx.closePath();
+            
+            const fillGradient = ctx.createLinearGradient(0, 0, 0, height);
+            fillGradient.addColorStop(0, 'rgba(66, 133, 244, 0.1)');
+            fillGradient.addColorStop(1, 'rgba(66, 133, 244, 0.01)');
+            ctx.fillStyle = fillGradient;
+            ctx.fill();
+        }
+        
+        function drawLabelsAndInfo(width, height, pointCount) {
+            const wavelengths = [300, 400, 500, 600, 700, 800];
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.font = '11px "Courier New", monospace';
+            ctx.textAlign = 'center';
+            
+            wavelengths.forEach(wl => {
+                const x = 40 + ((wl - 300) / 500) * (width - 60);
+                
+                ctx.beginPath();
+                ctx.moveTo(x, height - 40);
+                ctx.lineTo(x, height - 36);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                
+                ctx.fillText(wl + ' nm', x, height - 22);
+            });
+            
+            ctx.textAlign = 'left';
+            ctx.font = 'bold 14px "Segoe UI", sans-serif';
+            ctx.fillStyle = '#82b1ff';
+            ctx.fillText('ESPECTRO EM TEMPO REAL', 45, 30);
+            
+            ctx.save();
+            ctx.translate(20, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.font = '11px "Segoe UI", sans-serif';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.fillText('INTENSIDADE RELATIVA', 0, 0);
+            ctx.restore();
+            
+            ctx.font = '11px "Courier New", monospace';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.fillText(`${pointCount} pontos | 0.5 nm resolução`, 45, 48);
+        }
+        
+        function drawRegionIndicators(width, height, regionalIntensities) {
+            CONFIG.regions.forEach(region => {
+                const intensity = regionalIntensities[region.name] || 0;
+                
+                const x1 = 40 + ((region.min - 300) / 500) * (width - 60);
+                const x2 = 40 + ((region.max - 300) / 500) * (width - 60);
+                
+                ctx.fillStyle = region.color + '20';
+                ctx.fillRect(x1, 40, x2 - x1, height - 80);
+                
+                ctx.strokeStyle = region.color + '60';
+                ctx.lineWidth = 0.5;
+                ctx.strokeRect(x1, 40, x2 - x1, height - 80);
+                
+                ctx.fillStyle = region.color;
+                ctx.font = 'bold 10px Arial';
+                ctx.textAlign = 'center';
+                const centerX = (x1 + x2) / 2;
+                ctx.fillText(region.name, centerX, 35);
+                
+                const intensityPercent = Math.min(100, Math.round((intensity / 255) * 100));
+                ctx.fillStyle = 'white';
+                ctx.font = '9px Arial';
+                ctx.fillText(`${intensityPercent}%`, centerX, height - 30);
+            });
+        }
+        
+        function drawEmptySpectrum() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const dpr = window.devicePixelRatio || 1;
+            const displayWidth = width / dpr;
+            const displayHeight = height / dpr;
+            
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, displayWidth, displayHeight);
+            
+            drawGridAndAxes(displayWidth, displayHeight);
+            
+            const wavelengths = [300, 400, 500, 600, 700, 800];
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.font = '11px "Courier New", monospace';
+            ctx.textAlign = 'center';
+            
+            wavelengths.forEach(wl => {
+                const x = 40 + ((wl - 300) / 500) * (displayWidth - 60);
+                ctx.fillText(wl + ' nm', x, displayHeight - 22);
+            });
+            
+            ctx.save();
+            ctx.translate(20, displayHeight / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.font = '11px "Segoe UI", sans-serif';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.fillText('INTENSIDADE RELATIVA', 0, 0);
+            ctx.restore();
+            
+            ctx.textAlign = 'center';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.font = '14px "Segoe UI", sans-serif';
+            ctx.fillText('AGUARDANDO ANÁLISE', displayWidth / 2, displayHeight / 2);
+        }
+        
+        function updateSaturationInfo(spectrum) {
+            if (!spectrum || spectrum.length === 0) return;
+            
+            let currentMax = 0;
+            for (const point of spectrum) {
+                if (point.intensity > currentMax) currentMax = point.intensity;
+            }
+            
+            const saturationPercent = Math.min(100, Math.round((currentMax / 255) * 100));
+            
+            if (autoSaturation && saturationPercent > 95) {
+                const newLimit = Math.max(80, Math.round(saturationSlider.value * 0.9));
+                saturationSlider.value = newLimit;
+                saturationValue.textContent = `${newLimit}%`;
+            }
+        }
+        
+        function updateFpsCounter() {
+            const fps = frameCount;
+            fpsValue.textContent = `${fps} FPS`;
+            frameCount = 0;
+            
+            if (fps >= 6) {
+                fpsValue.style.color = '#44ff44';
+            } else if (fps >= 3) {
+                fpsValue.style.color = '#ffaa00';
+            } else {
+                fpsValue.style.color = '#ff4444';
+            }
+        }
+        
+        function toggleFreeze() {
+            isFrozen = !isFrozen;
+            
+            if (isFrozen && currentSpectrum) {
+                frozenSpectrum = [...currentSpectrum];
+                frozenRegions = calculateRegionalIntensities(currentSpectrum);
+                frozenPPFD = calculatePPFD(currentSpectrum);
+            }
+            
+            updateFreezeUI();
+        }
+        
+        function updateFreezeUI() {
+            if (isFrozen) {
+                freezeIndicator.style.display = 'inline-flex';
+                freezeBtn.innerHTML = '<span style="font-size: 15px;">▶</span> CONTINUAR';
+                modeValue.textContent = 'FROZEN';
+                modeValue.style.color = '#00e676';
+            } else {
+                freezeIndicator.style.display = 'none';
+                freezeBtn.innerHTML = '<span style="font-size: 15px;">📸</span> CONGELAR';
+                modeValue.textContent = 'LIVE';
+                modeValue.style.color = '#82b1ff';
+            }
+        }
+        
+        function gaussian(x, mean, sigma) {
+            return Math.exp(-Math.pow(x - mean, 2) / (2 * Math.pow(sigma, 2)));
         }
         
         // ========== CONTROLES CÂMERA ==========
@@ -605,609 +1932,22 @@
             currentSpectrum = null;
             isFrozen = false;
             updateFreezeUI();
+            cancelSelection();
             drawEmptySpectrum();
-        }
-        
-        function toggleFreeze() {
-            isFrozen = !isFrozen;
-            
-            if (isFrozen && currentSpectrum) {
-                // Congelar espectro atual
-                frozenSpectrum = [...currentSpectrum];
-                frozenRegions = calculateRegionalIntensities(currentSpectrum);
-                frozenPPFD = calculatePPFD(currentSpectrum);
-            }
-            
-            updateFreezeUI();
-        }
-        
-        function updateFreezeUI() {
-            if (isFrozen) {
-                freezeIndicator.style.display = 'inline-flex';
-                freezeBtn.innerHTML = '<span style="font-size: 15px;">▶</span> CONTINUAR';
-                modeValue.textContent = 'FROZEN';
-                modeValue.style.color = '#00e676';
-            } else {
-                freezeIndicator.style.display = 'none';
-                freezeBtn.innerHTML = '<span style="font-size: 15px;">📸</span> CONGELAR';
-                modeValue.textContent = 'LIVE';
-                modeValue.style.color = '#82b1ff';
-            }
-        }
-        
-        // ========== ANÁLISE ==========
-        function startAnalysis() {
-            if (animationId) cancelAnimationFrame(animationId);
-            
-            let lastAnalysisTime = 0;
-            
-            function analysisLoop(timestamp) {
-                if (!isCameraActive) return;
-                
-                const speed = CONFIG.speedLevels[speedSlider.value];
-                const now = Date.now();
-                
-                if (now - lastAnalysisTime >= speed.interval && !isFrozen) {
-                    analyzeFrame();
-                    lastAnalysisTime = now;
-                } else if (isFrozen) {
-                    // Usar dados congelados
-                    renderFrozenData();
-                }
-                
-                animationId = requestAnimationFrame(analysisLoop);
-            }
-            
-            animationId = requestAnimationFrame(analysisLoop);
-        }
-        
-        function analyzeFrame() {
-            if (!isCameraActive || video.readyState !== video.HAVE_ENOUGH_DATA) return;
-            
-            try {
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-                
-                tempCanvas.width = 320;
-                tempCanvas.height = 240;
-                tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
-                
-                const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-                const data = imageData.data;
-                
-                const analysis = analyzeImage(data);
-                const spectrum = generateSpectrum(analysis);
-                
-                // Adicionar ao histórico
-                spectrumHistory.push(spectrum);
-                if (spectrumHistory.length > HISTORY_SIZE) spectrumHistory.shift();
-                
-                // Aplicar suavização temporal
-                const smoothed = applyTemporalSmoothing(spectrumHistory);
-                currentSpectrum = smoothed;
-                
-                // Calcular métricas
-                const regionalIntensities = calculateRegionalIntensities(smoothed);
-                const ppfd = calculatePPFD(smoothed);
-                const maxIntensityData = findMaxIntensity(smoothed);
-                
-                // Atualizar UI
-                updateMetrics(regionalIntensities, ppfd, maxIntensityData);
-                updateSaturationInfo(smoothed);
-                
-                // Renderizar
-                renderSpectrum(smoothed, regionalIntensities);
-                
-                frameCount++;
-                
-            } catch (error) {
-                console.debug('Análise ignorada');
-            }
-        }
-        
-        function renderFrozenData() {
-            if (!frozenSpectrum) return;
-            
-            const regionalIntensities = frozenRegions || calculateRegionalIntensities(frozenSpectrum);
-            const ppfd = frozenPPFD || calculatePPFD(frozenSpectrum);
-            const maxIntensityData = findMaxIntensity(frozenSpectrum);
-            
-            updateMetrics(regionalIntensities, ppfd, maxIntensityData);
-            renderSpectrum(frozenSpectrum, regionalIntensities);
-        }
-        
-        function analyzeImage(data) {
-            const analysis = { r: 0, g: 0, b: 0, count: 0 };
-            
-            // Amostragem eficiente
-            for (let i = 0; i < data.length; i += 16) {
-                analysis.r += data[i];
-                analysis.g += data[i + 1];
-                analysis.b += data[i + 2];
-                analysis.count++;
-            }
-            
-            if (analysis.count > 0) {
-                analysis.r /= analysis.count;
-                analysis.g /= analysis.count;
-                analysis.b /= analysis.count;
-            }
-            
-            return analysis;
-        }
-        
-        function generateSpectrum(analysis) {
-            const spectrum = [];
-            
-            // Gerar espectro com alta resolução (0.5 nm)
-            for (let wavelength = 300; wavelength <= 800; wavelength += 0.5) {
-                let intensity = 0;
-                
-                // Contribuições espectrais
-                const contributions = [
-                    // UV/Violeta
-                    { center: 380, width: 35, weight: analysis.b * 0.6 },
-                    // Azul
-                    { center: 450, width: 30, weight: analysis.b * 0.9 },
-                    // Ciano
-                    { center: 490, width: 25, weight: (analysis.g + analysis.b) * 0.4 },
-                    // Verde
-                    { center: 540, width: 30, weight: analysis.g * 0.8 },
-                    // Amarelo
-                    { center: 580, width: 25, weight: (analysis.r + analysis.g) * 0.5 },
-                    // Laranja
-                    { center: 610, width: 30, weight: analysis.r * 0.6 },
-                    // Vermelho
-                    { center: 660, width: 35, weight: analysis.r * 0.8 },
-                    // Far-Red
-                    { center: 720, width: 45, weight: analysis.r * 0.5 }
-                ];
-                
-                // Somar contribuições
-                contributions.forEach(contrib => {
-                    intensity += contrib.weight * gaussian(wavelength, contrib.center, contrib.width);
-                });
-                
-                // Fundo contínuo
-                const avg = (analysis.r + analysis.g + analysis.b) / 3;
-                intensity += avg * 0.2 * gaussian(wavelength, 550, 180);
-                
-                // Ruído mínimo para realismo
-                intensity += (Math.random() - 0.5) * 0.3;
-                
-                spectrum.push({
-                    wavelength: wavelength,
-                    intensity: intensity
-                });
-            }
-            
-            return spectrum;
-        }
-        
-        function applyTemporalSmoothing(history) {
-            if (history.length === 0) return [];
-            if (history.length === 1) return history[0];
-            
-            const smoothed = [];
-            const weights = [0.1, 0.15, 0.25, 0.25, 0.25];
-            
-            for (let i = 0; i < history[0].length; i++) {
-                let total = 0;
-                let weightSum = 0;
-                
-                for (let j = 0; j < history.length; j++) {
-                    const weight = weights[Math.min(j, weights.length - 1)];
-                    total += history[j][i].intensity * weight;
-                    weightSum += weight;
-                }
-                
-                smoothed.push({
-                    wavelength: history[0][i].wavelength,
-                    intensity: total / weightSum
-                });
-            }
-            
-            return smoothed;
-        }
-        
-        function calculateRegionalIntensities(spectrum) {
-            const intensities = {};
-            
-            CONFIG.regions.forEach(region => {
-                let sum = 0;
-                let count = 0;
-                
-                for (const point of spectrum) {
-                    if (point.wavelength >= region.min && point.wavelength <= region.max) {
-                        sum += point.intensity;
-                        count++;
-                    }
-                }
-                
-                intensities[region.name] = count > 0 ? (sum / count) : 0;
-            });
-            
-            return intensities;
-        }
-        
-        function calculatePPFD(spectrum) {
-            let sum = 0;
-            let count = 0;
-            
-            for (const point of spectrum) {
-                if (point.wavelength >= CONFIG.parRange.min && point.wavelength <= CONFIG.parRange.max) {
-                    sum += point.intensity;
-                    count++;
-                }
-            }
-            
-            // Converter para PPFD (simulação simplificada)
-            const avgIntensity = count > 0 ? sum / count : 0;
-            return (avgIntensity * 2.5).toFixed(1); // Fator de conversão simulado
-        }
-        
-        function findMaxIntensity(spectrum) {
-            let maxIntensity = 0;
-            let peakWavelength = 0;
-            
-            for (const point of spectrum) {
-                if (point.intensity > maxIntensity) {
-                    maxIntensity = point.intensity;
-                    peakWavelength = point.wavelength;
-                }
-            }
-            
-            return {
-                intensity: maxIntensity.toFixed(2),
-                wavelength: Math.round(peakWavelength)
-            };
-        }
-        
-        function updateMetrics(regionalIntensities, ppfd, maxIntensityData) {
-            // Atualizar PPFD
-            ppfdValue.textContent = ppfd;
-            
-            // Atualizar intensidade máxima
-            maxIntensityValue.textContent = maxIntensityData.intensity;
-            
-            // Atualizar pico espectral
-            peakWavelengthValue.textContent = maxIntensityData.wavelength;
-            
-            // Atualizar regiões
-            updateRegionsUI(regionalIntensities);
-        }
-        
-        function initializeRegions() {
-            CONFIG.regions.forEach(region => {
-                const regionCard = document.createElement('div');
-                regionCard.className = 'region-card';
-                regionCard.style.borderLeft = `3px solid ${region.color}`;
-                regionCard.innerHTML = `
-                    <div class="region-name">${region.icon} ${region.name}</div>
-                    <div class="region-value" id="regionValue${region.name}">0.00</div>
-                    <div class="region-wavelength">${region.min}-${region.max}nm</div>
-                `;
-                regionsContainer.appendChild(regionCard);
-            });
-        }
-        
-        function updateRegionsUI(intensities) {
-            CONFIG.regions.forEach(region => {
-                const valueElement = document.getElementById(`regionValue${region.name}`);
-                if (valueElement) {
-                    const value = intensities[region.name] || 0;
-                    valueElement.textContent = value.toFixed(2);
-                    valueElement.style.color = region.color;
-                }
-            });
-        }
-        
-        // ========== RENDERIZAÇÃO ==========
-        function renderSpectrum(spectrum, regionalIntensities = {}) {
-            if (!spectrum || spectrum.length === 0) return;
-            
-            const width = canvas.width;
-            const height = canvas.height;
-            const dpr = window.devicePixelRatio || 1;
-            const displayWidth = width / dpr;
-            const displayHeight = height / dpr;
-            
-            // Limpar canvas
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(0, 0, displayWidth, displayHeight);
-            
-            // Desenhar grade e eixos
-            drawGridAndAxes(displayWidth, displayHeight);
-            
-            // Encontrar intensidade máxima
-            let currentMax = 1;
-            for (const point of spectrum) {
-                if (point.intensity > currentMax) currentMax = point.intensity;
-            }
-            
-            // Atualizar máximo global suavemente
-            maxIntensity = maxIntensity * 0.95 + currentMax * 0.05;
-            
-            // Aplicar limite de saturação
-            let saturationLimit = autoSaturation ? maxIntensity : 
-                                 (parseInt(saturationSlider.value) / 100) * maxIntensity;
-            saturationLimit = Math.max(saturationLimit, 1);
-            
-            // Desenhar linha do espectro COLORIDA
-            drawColoredSpectrumLine(spectrum, displayWidth, displayHeight, saturationLimit);
-            
-            // Desenhar rótulos e informações
-            drawLabelsAndInfo(displayWidth, displayHeight, spectrum.length);
-            
-            // Desenhar indicadores de regiões
-            drawRegionIndicators(displayWidth, displayHeight, regionalIntensities);
-        }
-        
-        function drawGridAndAxes(width, height) {
-            // Grade de fundo
-            ctx.strokeStyle = 'rgba(66, 133, 244, 0.15)';
-            ctx.lineWidth = 0.5;
-            
-            // Linhas horizontais
-            for (let i = 1; i <= 5; i++) {
-                const y = 40 + (i * (height - 80) / 6);
-                ctx.beginPath();
-                ctx.moveTo(40, y);
-                ctx.lineTo(width - 20, y);
-                ctx.stroke();
-            }
-            
-            // Linhas verticais (comprimentos de onda importantes)
-            const wavelengths = [300, 380, 450, 530, 600, 700, 800];
-            wavelengths.forEach(wl => {
-                const x = 40 + ((wl - 300) / 500) * (width - 60);
-                ctx.beginPath();
-                ctx.moveTo(x, 40);
-                ctx.lineTo(x, height - 40);
-                ctx.stroke();
-            });
-            
-            // Eixos principais
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.lineWidth = 1;
-            
-            // Eixo X
-            ctx.beginPath();
-            ctx.moveTo(40, height - 40);
-            ctx.lineTo(width - 20, height - 40);
-            ctx.stroke();
-            
-            // Eixo Y
-            ctx.beginPath();
-            ctx.moveTo(40, 40);
-            ctx.lineTo(40, height - 40);
-            ctx.stroke();
-        }
-        
-        function drawColoredSpectrumLine(spectrum, width, height, maxIntensity) {
-            // Criar gradiente espectral para a linha
-            const lineGradient = ctx.createLinearGradient(40, 0, width - 20, 0);
-            lineGradient.addColorStop(0.00, '#8a2be2');  // Violeta
-            lineGradient.addColorStop(0.15, '#4169e1');  // Azul
-            lineGradient.addColorStop(0.30, '#00bfff');  // Azul claro
-            lineGradient.addColorStop(0.45, '#32cd32');  // Verde
-            lineGradient.addColorStop(0.60, '#ffd700');  // Amarelo
-            lineGradient.addColorStop(0.75, '#ff8c00');  // Laranja
-            lineGradient.addColorStop(0.90, '#ff4500');  // Vermelho
-            lineGradient.addColorStop(1.00, '#8b0000');  // Vermelho escuro
-            
-            // Desenhar linha suave
-            ctx.beginPath();
-            ctx.lineWidth = 2.5;
-            ctx.strokeStyle = lineGradient;
-            ctx.lineJoin = 'round';
-            ctx.lineCap = 'round';
-            
-            // Usar amostragem para suavidade
-            const step = Math.max(1, Math.floor(spectrum.length / 200));
-            const points = [];
-            
-            for (let i = 0; i < spectrum.length; i += step) {
-                const point = spectrum[i];
-                const x = 40 + ((point.wavelength - 300) / 500) * (width - 60);
-                const y = height - 40 - (point.intensity / maxIntensity * (height - 80));
-                
-                points.push({ x, y });
-                
-                if (i === 0) {
-                    ctx.moveTo(x, y);
-                } else if (i >= step) {
-                    // Interpolação suave
-                    const prev = points[points.length - 2];
-                    const cp1x = prev.x + (x - prev.x) * 0.5;
-                    const cp1y = prev.y;
-                    const cp2x = prev.x + (x - prev.x) * 0.5;
-                    const cp2y = y;
-                    
-                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
-                }
-            }
-            
-            ctx.stroke();
-            
-            // Preenchimento suave abaixo da linha
-            ctx.lineTo(width - 20, height - 40);
-            ctx.lineTo(40, height - 40);
-            ctx.closePath();
-            
-            const fillGradient = ctx.createLinearGradient(0, 0, 0, height);
-            fillGradient.addColorStop(0, 'rgba(66, 133, 244, 0.1)');
-            fillGradient.addColorStop(1, 'rgba(66, 133, 244, 0.01)');
-            ctx.fillStyle = fillGradient;
-            ctx.fill();
-        }
-        
-        function drawLabelsAndInfo(width, height, pointCount) {
-            // Rótulos do eixo X (comprimento de onda)
-            const wavelengths = [300, 400, 500, 600, 700, 800];
-            
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.font = '11px "Courier New", monospace';
-            ctx.textAlign = 'center';
-            
-            wavelengths.forEach(wl => {
-                const x = 40 + ((wl - 300) / 500) * (width - 60);
-                
-                // Marcador
-                ctx.beginPath();
-                ctx.moveTo(x, height - 40);
-                ctx.lineTo(x, height - 36);
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-                
-                // Texto
-                ctx.fillText(wl + ' nm', x, height - 22);
-            });
-            
-            // Título do gráfico
-            ctx.textAlign = 'left';
-            ctx.font = 'bold 14px "Segoe UI", sans-serif';
-            ctx.fillStyle = '#82b1ff';
-            ctx.fillText('ESPECTRO EM TEMPO REAL', 45, 30);
-            
-            // Eixo Y corrigido
-            ctx.save();
-            ctx.translate(20, height / 2);
-            ctx.rotate(-Math.PI / 2);
-            ctx.textAlign = 'center';
-            ctx.font = '11px "Segoe UI", sans-serif';
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.fillText('INTENSIDADE RELATIVA', 0, 0);
-            ctx.restore();
-            
-            // Informações
-            ctx.font = '11px "Courier New", monospace';
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-            ctx.fillText(`${pointCount} pontos | 0.5 nm resolução`, 45, 48);
-        }
-        
-        function drawRegionIndicators(width, height, regionalIntensities) {
-            CONFIG.regions.forEach(region => {
-                const intensity = regionalIntensities[region.name] || 0;
-                
-                // Posição X da região
-                const x1 = 40 + ((region.min - 300) / 500) * (width - 60);
-                const x2 = 40 + ((region.max - 300) / 500) * (width - 60);
-                
-                // Área da região com transparência
-                ctx.fillStyle = region.color + '20';
-                ctx.fillRect(x1, 40, x2 - x1, height - 80);
-                
-                // Borda da região
-                ctx.strokeStyle = region.color + '60';
-                ctx.lineWidth = 0.5;
-                ctx.strokeRect(x1, 40, x2 - x1, height - 80);
-                
-                // Rótulo da região no topo
-                ctx.fillStyle = region.color;
-                ctx.font = 'bold 10px Arial';
-                ctx.textAlign = 'center';
-                const centerX = (x1 + x2) / 2;
-                ctx.fillText(region.name, centerX, 35);
-                
-                // Intensidade média da região
-                const intensityPercent = Math.min(100, Math.round((intensity / 255) * 100));
-                ctx.fillStyle = 'white';
-                ctx.font = '9px Arial';
-                ctx.fillText(`${intensityPercent}%`, centerX, height - 30);
-            });
-        }
-        
-        function drawEmptySpectrum() {
-            const width = canvas.width;
-            const height = canvas.height;
-            const dpr = window.devicePixelRatio || 1;
-            const displayWidth = width / dpr;
-            const displayHeight = height / dpr;
-            
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(0, 0, displayWidth, displayHeight);
-            
-            drawGridAndAxes(displayWidth, displayHeight);
-            
-            // Rótulos do eixo X
-            const wavelengths = [300, 400, 500, 600, 700, 800];
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.font = '11px "Courier New", monospace';
-            ctx.textAlign = 'center';
-            
-            wavelengths.forEach(wl => {
-                const x = 40 + ((wl - 300) / 500) * (displayWidth - 60);
-                ctx.fillText(wl + ' nm', x, displayHeight - 22);
-            });
-            
-            // Eixo Y vazio
-            ctx.save();
-            ctx.translate(20, displayHeight / 2);
-            ctx.rotate(-Math.PI / 2);
-            ctx.textAlign = 'center';
-            ctx.font = '11px "Segoe UI", sans-serif';
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.fillText('INTENSIDADE RELATIVA', 0, 0);
-            ctx.restore();
-            
-            ctx.textAlign = 'center';
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-            ctx.font = '14px "Segoe UI", sans-serif';
-            ctx.fillText('AGUARDANDO ANÁLISE', displayWidth / 2, displayHeight / 2);
-        }
-        
-        function updateSaturationInfo(spectrum) {
-            if (!spectrum || spectrum.length === 0) return;
-            
-            // Encontrar intensidade máxima atual
-            let currentMax = 0;
-            for (const point of spectrum) {
-                if (point.intensity > currentMax) currentMax = point.intensity;
-            }
-            
-            // Calcular porcentagem de saturação
-            const saturationPercent = Math.min(100, Math.round((currentMax / 255) * 100));
-            
-            // Atualizar automático se configurado
-            if (autoSaturation && saturationPercent > 95) {
-                const newLimit = Math.max(80, Math.round(saturationSlider.value * 0.9));
-                saturationSlider.value = newLimit;
-                saturationValue.textContent = `${newLimit}%`;
-            }
-        }
-        
-        function updateFpsCounter() {
-            const fps = frameCount;
-            fpsValue.textContent = `${fps} FPS`;
-            frameCount = 0;
-            
-            // Cor baseada no FPS
-            if (fps >= 6) {
-                fpsValue.style.color = '#44ff44';
-            } else if (fps >= 3) {
-                fpsValue.style.color = '#ffaa00';
-            } else {
-                fpsValue.style.color = '#ff4444';
-            }
-        }
-        
-        // ========== FUNÇÕES AUXILIARES ==========
-        function gaussian(x, mean, sigma) {
-            return Math.exp(-Math.pow(x - mean, 2) / (2 * Math.pow(sigma, 2)));
         }
         
         // ========== INICIAR APLICAÇÃO ==========
         window.addEventListener('DOMContentLoaded', init);
         window.addEventListener('resize', () => {
             updateCanvasSize();
+            updateZoomCanvasSize();
             if (!isCameraActive) {
                 drawEmptySpectrum();
             } else if (isFrozen && frozenSpectrum) {
                 renderFrozenData();
             } else if (currentSpectrum) {
-                renderSpectrum(currentSpectrum);
+                const regionalIntensities = calculateRegionalIntensities(currentSpectrum);
+                renderSpectrum(currentSpectrum, regionalIntensities);
             }
         });
     </script>
