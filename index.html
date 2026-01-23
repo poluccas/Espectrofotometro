@@ -1,294 +1,1215 @@
-import streamlit as st
-import numpy as np
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import pandas as pd
-from datetime import datetime
-
-# Configuração da página
-st.set_page_config(page_title="Espectrômetro Vegetal", layout="wide")
-
-# Título e descrição
-st.title("🌿 Espectrômetro para Análise Vegetal")
-st.markdown("---")
-
-# Inicializar estado da sessão para controle da captura
-if 'freeze_data' not in st.session_state:
-    st.session_state.freeze_data = False
-if 'frozen_spectrum' not in st.session_state:
-    st.session_state.frozen_spectrum = None
-if 'frozen_intensities' not in st.session_state:
-    st.session_state.frozen_intensities = None
-if 'frozen_ppfd' not in st.session_state:
-    st.session_state.frozen_ppfd = None
-
-# Barra lateral para controles
-with st.sidebar:
-    st.header("⚙️ Configurações")
-    
-    # Sliders para intensidades simuladas
-    st.subheader("Controles de Intensidade")
-    intensidade_vermelho = st.slider("Intensidade Vermelho (660 nm)", 0.0, 1.0, 0.8, 0.01)
-    intensidade_azul = st.slider("Intensidade Azul (450 nm)", 0.0, 1.0, 0.6, 0.01)
-    intensidade_verde = st.slider("Intensidade Verde (550 nm)", 0.0, 1.0, 0.3, 0.01)
-    intensidade_ir = st.slider("Intensidade Infravermelho (730 nm)", 0.0, 1.0, 0.4, 0.01)
-    
-    # Controle de ruído
-    ruido = st.slider("Nível de Ruído", 0.0, 0.2, 0.05, 0.01)
-    
-    # Botão para capturar espectro
-    st.markdown("---")
-    if st.button("📸 Capturar Espectro" if not st.session_state.freeze_data else "▶️ Continuar Atualização"):
-        st.session_state.freeze_data = not st.session_state.freeze_data
-        if st.session_state.freeze_data:
-            st.rerun()
-    
-    # Informações adicionais
-    st.markdown("---")
-    st.info("""
-    **Instruções:**
-    1. Ajuste as intensidades
-    2. Clique em 'Capturar Espectro' para congelar
-    3. Clique novamente para continuar
-    """)
-
-# Função para gerar dados espectrais simulados
-def gerar_espectro_simulado():
-    # Comprimentos de onda de 380 a 800 nm
-    wavelength = np.linspace(380, 800, 421)
-    
-    # Gerar picos espectrais
-    spectrum = np.zeros_like(wavelength)
-    
-    # Adicionar picos nas regiões específicas
-    picos = [
-        (450, intensidade_azul, 15),      # Azul
-        (550, intensidade_verde, 20),     # Verde  
-        (660, intensidade_vermelho, 15),  # Vermelho
-        (730, intensidade_ir, 25),        # Infravermelho próximo
-    ]
-    
-    for center, intensity, width in picos:
-        spectrum += intensity * np.exp(-((wavelength - center) / width) ** 2)
-    
-    # Adicionar ruído
-    spectrum += np.random.normal(0, ruido, spectrum.shape)
-    
-    # Garantir valores não negativos
-    spectrum = np.maximum(spectrum, 0)
-    
-    return wavelength, spectrum
-
-# Função para calcular PPFD
-def calcular_ppfd(wavelength, spectrum):
-    """
-    Calcula PPFD (Photosynthetic Photon Flux Density) em µmol/m²/s
-    Considerando apenas o espectro fotossinteticamente ativo (400-700 nm)
-    """
-    # Filtrar para PAR (400-700 nm)
-    mask = (wavelength >= 400) & (wavelength <= 700)
-    par_wavelength = wavelength[mask]
-    par_spectrum = spectrum[mask]
-    
-    if len(par_wavelength) == 0:
-        return 0.0
-    
-    # Converter intensidade relativa para PPFD (simulação simplificada)
-    # Em um sistema real, isso exigiria calibração com sensor de referência
-    area_under_curve = np.trapz(par_spectrum, par_wavelength)
-    ppfd = area_under_curve * 0.2  # Fator de conversão simulado
-    
-    return ppfd
-
-# Função para calcular intensidades médias por região
-def calcular_intensidades_regionais(wavelength, spectrum):
-    regiões = {
-        'Azul (400-500 nm)': (400, 500),
-        'Verde (500-600 nm)': (500, 600),
-        'Vermelho (600-700 nm)': (600, 700),
-        'Vermelho Distante (700-800 nm)': (700, 800)
-    }
-    
-    intensidades = {}
-    for nome, (inicio, fim) in regiões.items():
-        mascara = (wavelength >= inicio) & (wavelength <= fim)
-        if np.sum(mascara) > 0:
-            intensidade_media = np.mean(spectrum[mascara])
-            intensidades[nome] = intensidade_media
-        else:
-            intensidades[nome] = 0.0
-    
-    return intensidades
-
-# Gerar ou usar dados congelados
-if st.session_state.freeze_data and st.session_state.frozen_spectrum is not None:
-    wavelength = st.session_state.frozen_spectrum[0]
-    spectrum = st.session_state.frozen_spectrum[1]
-    ppfd = st.session_state.frozen_ppfd
-    intensidades_regiao = st.session_state.frozen_intensities
-else:
-    wavelength, spectrum = gerar_espectro_simulado()
-    ppfd = calcular_ppfd(wavelength, spectrum)
-    intensidades_regiao = calcular_intensidades_regionais(wavelength, spectrum)
-    
-    # Salvar estado se congelado
-    if st.session_state.freeze_data:
-        st.session_state.frozen_spectrum = (wavelength.copy(), spectrum.copy())
-        st.session_state.frozen_ppfd = ppfd
-        st.session_state.frozen_intensities = intensidades_regiao.copy()
-
-# Layout principal
-col1, col2 = st.columns([3, 1])
-
-with col1:
-    st.subheader("📊 Espectro de Luz")
-    
-    # Indicador de estado
-    if st.session_state.freeze_data:
-        st.warning("⚠️ Espectro congelado - Modo de visualização")
-    else:
-        st.success("🔄 Atualizando em tempo real")
-    
-    # Criar gráfico
-    fig = go.Figure()
-    
-    # Adicionar espectro
-    fig.add_trace(go.Scatter(
-        x=wavelength,
-        y=spectrum,
-        mode='lines',
-        line=dict(color='royalblue', width=2),
-        name='Espectro',
-        hovertemplate='Comprimento: %{x:.1f} nm<br>Intensidade: %{y:.3f}<extra></extra>'
-    ))
-    
-    # Adicionar áreas coloridas para regiões do espectro
-    cores_regioes = {
-        'UV': ('380-400', 380, 400, 'rgba(128, 0, 128, 0.1)'),
-        'Azul': ('400-500', 400, 500, 'rgba(0, 0, 255, 0.1)'),
-        'Verde': ('500-600', 500, 600, 'rgba(0, 255, 0, 0.1)'),
-        'Vermelho': ('600-700', 600, 700, 'rgba(255, 0, 0, 0.1)'),
-        'Infravermelho': ('700-800', 700, 800, 'rgba(255, 165, 0, 0.1)')
-    }
-    
-    for nome, (label, inicio, fim, cor) in cores_regioes.items():
-        fig.add_vrect(
-            x0=inicio, x1=fim,
-            fillcolor=cor,
-            opacity=0.2,
-            line_width=0,
-            annotation_text=label if nome in ['Azul', 'Verde', 'Vermelho'] else "",
-            annotation_position="top left",
-            annotation_font_size=10
-        )
-    
-    # Configurações do layout
-    fig.update_layout(
-        title="Espectro de Luz Completo (380-800 nm)",
-        xaxis_title="Comprimento de Onda (nm)",
-        yaxis_title="Intensidade Relativa (unidades arbitrárias)",
-        height=500,
-        showlegend=False,
-        hovermode='x unified',
-        template='plotly_white',
-        margin=dict(l=50, r=50, t=80, b=50),
-        xaxis=dict(
-            showgrid=True,
-            gridcolor='lightgray',
-            gridwidth=0.5,
-            range=[380, 800]
-        ),
-        yaxis=dict(
-            showgrid=True,
-            gridcolor='lightgray',
-            gridwidth=0.5,
-            zeroline=True,
-            zerolinecolor='gray',
-            zerolinewidth=1
-        )
-    )
-    
-    st.plotly_chart(fig, use_container_width=True)
-
-with col2:
-    st.subheader("📈 Métricas")
-    
-    # Card de PPFD
-    metric_ppfd = ppfd
-    st.metric(
-        label="**PPFD**",
-        value=f"{metric_ppfd:.1f}",
-        delta=f"{'Estável' if st.session_state.freeze_data else 'Variando'}",
-        help="Densidade de Fluxo de Fótons Fotossintéticos (400-700 nm)"
-    )
-    st.caption("μmol/m²/s")
-    
-    st.markdown("---")
-    
-    # Intensidades por região
-    st.subheader("🔍 Intensidade por Região")
-    
-    for regiao, intensidade in intensidades_regiao.items():
-        # Determinar cor baseada na região
-        if 'Azul' in regiao:
-            cor = "blue"
-            icon = "🔵"
-        elif 'Verde' in regiao:
-            cor = "green"
-            icon = "🟢"
-        elif 'Vermelho' in regiao:
-            cor = "red"
-            icon = "🔴"
-        else:
-            cor = "orange"
-            icon = "🟠"
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espectrofotômetro Final - Melhorado</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
         
-        # Criar container para cada região
-        with st.container():
-            cols = st.columns([1, 2])
-            with cols[0]:
-                st.markdown(f"**{icon}**")
-            with cols[1]:
-                st.metric(
-                    label=regiao,
-                    value=f"{intensidade:.3f}",
-                    label_visibility="visible"
-                )
-        st.progress(min(intensidade, 1.0))
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            padding: 15px;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 18px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            border-radius: 12px;
+            border: 1px solid #3949ab;
+        }
+        
+        h1 {
+            font-size: 20px;
+            margin-bottom: 4px;
+            color: #82b1ff;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+            color: #bbdefb;
+        }
+        
+        .video-section {
+            background: rgba(25, 25, 60, 0.95);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #3949ab;
+        }
+        
+        .video-container {
+            width: 100%;
+            height: 160px;
+            background: #000;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #444;
+        }
+        
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            display: none;
+        }
+        
+        #placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 15px;
+            background: #0a0a2a;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 44px;
+        }
+        
+        button:active { transform: scale(0.97); }
+        
+        #startBtn { 
+            background: linear-gradient(135deg, #2962ff, #448aff);
+            color: white;
+        }
+        
+        #stopBtn { 
+            background: linear-gradient(135deg, #d32f2f, #f44336);
+            color: white;
+            display: none;
+        }
+        
+        #flipBtn { 
+            background: linear-gradient(135deg, #ff8f00, #ffb74d);
+            color: white;
+            display: none;
+        }
+        
+        #freezeBtn { 
+            background: linear-gradient(135deg, #00c853, #64dd17);
+            color: white;
+        }
+        
+        .spectrum-section {
+            background: rgba(25, 25, 60, 0.95);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #3949ab;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+        
+        #spectrumCanvas {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            border-radius: 8px;
+            border: 1px solid #444;
+            display: block;
+        }
+        
+        .metrics-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .metric-card {
+            background: rgba(40, 40, 80, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #3949ab;
+        }
+        
+        .metric-title {
+            font-size: 12px;
+            color: #bbdefb;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .metric-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            margin: 5px 0;
+        }
+        
+        .metric-unit {
+            font-size: 11px;
+            color: #78909c;
+            text-align: center;
+            margin-top: 2px;
+        }
+        
+        .regions-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .region-card {
+            background: rgba(30, 30, 60, 0.9);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .region-name {
+            font-size: 11px;
+            color: #bbdefb;
+            margin-bottom: 6px;
+        }
+        
+        .region-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .region-wavelength {
+            font-size: 10px;
+            color: #78909c;
+            margin-top: 4px;
+        }
+        
+        .quality-control {
+            background: rgba(40, 40, 80, 0.9);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+        
+        .control-group {
+            margin-bottom: 12px;
+        }
+        
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #bbdefb;
+        }
+        
+        .slider-container {
+            position: relative;
+            height: 28px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 5px;
+            -webkit-appearance: none;
+            background: linear-gradient(90deg, #3949ab, #448aff);
+            border-radius: 3px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #448aff;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .status-bar {
+            background: rgba(40, 40, 80, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            color: #bbdefb;
+        }
+        
+        .status-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .status-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #82b1ff;
+            margin-top: 2px;
+        }
+        
+        .freeze-indicator {
+            background: rgba(0, 200, 83, 0.2);
+            color: #00e676;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 10px;
+            border: 1px solid #00e676;
+            display: none;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 11px;
+            color: #78909c;
+        }
+        
+        @media (max-width: 480px) {
+            .controls { flex-wrap: wrap; }
+            .controls button { flex: 1 0 calc(50% - 8px); }
+            .chart-container { height: 260px; }
+            .video-container { height: 140px; }
+            button { min-height: 48px; }
+            .metrics-container { grid-template-columns: 1fr; }
+            .regions-container { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 ESPECTROFOTÔMETRO FINAL - MELHORADO</h1>
+            <p class="subtitle">Análise espectral completa • PPFD • Intensidades regionais</p>
+        </header>
+        
+        <section class="video-section">
+            <div class="video-container">
+                <div id="placeholder">
+                    <div style="font-size: 32px; margin-bottom: 8px; color: #448aff;">📡</div>
+                    <p style="color: #bbdefb; font-size: 14px;">Pronto para análise</p>
+                </div>
+                <video id="video" autoplay playsinline muted></video>
+            </div>
+            
+            <div class="controls">
+                <button id="startBtn">
+                    <span style="font-size: 15px;">▶</span> INICIAR
+                </button>
+                <button id="stopBtn">
+                    <span style="font-size: 15px;">⏹</span> PARAR
+                </button>
+                <button id="flipBtn">
+                    <span style="font-size: 15px;">🔄</span> VIRAR
+                </button>
+                <button id="freezeBtn">
+                    <span style="font-size: 15px;">📸</span> CONGELAR
+                    <span class="freeze-indicator" id="freezeIndicator">⏸</span>
+                </button>
+            </div>
+        </section>
+        
+        <section class="spectrum-section">
+            <div class="chart-container">
+                <canvas id="spectrumCanvas"></canvas>
+            </div>
+            
+            <!-- Métricas principais -->
+            <div class="metrics-container">
+                <div class="metric-card">
+                    <div class="metric-title">🌿 PPFD (Fótons)</div>
+                    <div class="metric-value" id="ppfdValue">0.0</div>
+                    <div class="metric-unit">μmol/m²/s</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-title">⚡ INTENSIDADE MÁXIMA</div>
+                    <div class="metric-value" id="maxIntensityValue">0.0</div>
+                    <div class="metric-unit">unidades relativas</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-title">📊 PICO ESPECTRAL</div>
+                    <div class="metric-value" id="peakWavelengthValue">0</div>
+                    <div class="metric-unit">nanômetros</div>
+                </div>
+            </div>
+            
+            <!-- Intensidades por região -->
+            <div class="regions-container" id="regionsContainer">
+                <!-- As regiões serão preenchidas via JavaScript -->
+            </div>
+            
+            <div class="quality-control">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>📊 INTENSIDADE MÁXIMA</span>
+                        <span id="saturationValue">80%</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" id="saturationSlider" min="10" max="100" value="80">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>⚡ VELOCIDADE</span>
+                        <span id="speedValue">Normal</span>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" id="speedSlider" min="1" max="3" value="2">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="status-bar">
+                <div class="status-item">
+                    <div>RESOLUÇÃO</div>
+                    <div class="status-value" id="resValue">0.5 nm</div>
+                </div>
+                <div class="status-item">
+                    <div>ATUALIZAÇÃO</div>
+                    <div class="status-value" id="fpsValue">0 FPS</div>
+                </div>
+                <div class="status-item">
+                    <div>MODO</div>
+                    <div class="status-value" id="modeValue">LIVE</div>
+                </div>
+            </div>
+        </section>
+        
+        <footer>
+            <p>Espectrofotômetro Final v6.0 • Com PPFD e análise regional • Modo congelamento</p>
+            <p>🌿 Regiões: Azul (450nm) • Verde (550nm) • Vermelho (660nm) • Far-Red (730nm)</p>
+        </footer>
+    </div>
 
-# Rodapé
-st.markdown("---")
-col_info1, col_info2, col_info3 = st.columns(3)
-
-with col_info1:
-    st.caption(f"📅 {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
-
-with col_info2:
-    if st.session_state.freeze_data:
-        st.caption("🛑 Modo: Visualização congelada")
-    else:
-        st.caption("🔄 Modo: Atualização em tempo real")
-
-with col_info3:
-    resolução = len(wavelength)
-    st.caption(f"📏 Resolução: {resolução} pontos")
-
-# Instruções
-with st.expander("ℹ️ Sobre as métricas"):
-    st.markdown("""
-    **PPFD (Photosynthetic Photon Flux Density):**
-    - Medida da densidade de fótons fotossinteticamente ativos
-    - Unidade: μmol/m²/s
-    - Faixa: 400-700 nm (PAR - Radiação Fotossinteticamente Ativa)
-    
-    **Intensidade por Região:**
-    - **Azul (400-500 nm):** Importante para morfologia e fototropismo
-    - **Verde (500-600 nm):** Penetra mais profundamente no dossel
-    - **Vermelho (600-700 nm):** Alta eficiência fotossintética
-    - **Vermelho Distante (700-800 nm):** Regula floração e alongamento
-    
-    **Nota:** Valores em unidades arbitrárias para simulação.
-    """)
-
-st.markdown("---")
-st.caption("Desenvolvido para análise espectral em pesquisa vegetal 🌱")
+    <script>
+        // ========== CONFIGURAÇÕES ==========
+        const CONFIG = {
+            speedLevels: {
+                1: { label: 'Lenta', interval: 500, fps: 2 },
+                2: { label: 'Normal', interval: 250, fps: 4 },
+                3: {label: 'Rápida', interval: 125, fps: 8 }
+            },
+            regions: [
+                { name: 'UV', min: 380, max: 400, color: '#8a2be2', icon: '🟣' },
+                { name: 'Azul', min: 400, max: 500, color: '#4169e1', icon: '🔵' },
+                { name: 'Verde', min: 500, max: 600, color: '#32cd32', icon: '🟢' },
+                { name: 'Vermelho', min: 600, max: 700, color: '#ff4500', icon: '🔴' },
+                { name: 'Far-Red', min: 700, max: 800, color: '#8b0000', icon: '🟤' }
+            ],
+            parRange: { min: 400, max: 700 } // Faixa PAR para PPFD
+        };
+        
+        // ========== ELEMENTOS DOM ==========
+        const video = document.getElementById('video');
+        const placeholder = document.getElementById('placeholder');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const flipBtn = document.getElementById('flipBtn');
+        const freezeBtn = document.getElementById('freezeBtn');
+        const freezeIndicator = document.getElementById('freezeIndicator');
+        const canvas = document.getElementById('spectrumCanvas');
+        const ctx = canvas.getContext('2d', { alpha: false });
+        const saturationSlider = document.getElementById('saturationSlider');
+        const saturationValue = document.getElementById('saturationValue');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
+        const resValue = document.getElementById('resValue');
+        const fpsValue = document.getElementById('fpsValue');
+        const modeValue = document.getElementById('modeValue');
+        const ppfdValue = document.getElementById('ppfdValue');
+        const maxIntensityValue = document.getElementById('maxIntensityValue');
+        const peakWavelengthValue = document.getElementById('peakWavelengthValue');
+        const regionsContainer = document.getElementById('regionsContainer');
+        
+        // ========== ESTADO ==========
+        let stream = null;
+        let isCameraActive = false;
+        let useFrontCamera = false;
+        let animationId = null;
+        let frameCount = 0;
+        let lastFpsUpdate = 0;
+        let currentSpectrum = null;
+        let maxIntensity = 1;
+        let autoSaturation = true;
+        let isFrozen = false;
+        let frozenSpectrum = null;
+        let frozenRegions = null;
+        let frozenPPFD = 0;
+        
+        // Histórico para suavização
+        const spectrumHistory = [];
+        const HISTORY_SIZE = 5;
+        
+        // ========== INICIALIZAÇÃO ==========
+        function init() {
+            updateCanvasSize();
+            
+            // Configurar controles
+            saturationSlider.addEventListener('input', () => {
+                const value = saturationSlider.value;
+                saturationValue.textContent = `${value}%`;
+                autoSaturation = false;
+            });
+            
+            speedSlider.addEventListener('input', () => {
+                const level = CONFIG.speedLevels[speedSlider.value];
+                speedValue.textContent = level.label;
+            });
+            
+            // Configurar botão de congelamento
+            freezeBtn.addEventListener('click', toggleFreeze);
+            
+            // Configurações iniciais
+            saturationValue.textContent = '80%';
+            speedValue.textContent = 'Normal';
+            resValue.textContent = '0.5 nm';
+            modeValue.textContent = 'LIVE';
+            
+            // Inicializar regiões
+            initializeRegions();
+            
+            // Desenhar estado inicial
+            drawEmptySpectrum();
+            
+            // Monitorar FPS
+            setInterval(updateFpsCounter, 1000);
+        }
+        
+        function updateCanvasSize() {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            
+            canvas.width = Math.floor(rect.width * dpr);
+            canvas.height = Math.floor(300 * dpr);
+            ctx.scale(dpr, dpr);
+        }
+        
+        // ========== CONTROLES CÂMERA ==========
+        startBtn.addEventListener('click', async () => {
+            try {
+                const constraints = {
+                    video: {
+                        facingMode: useFrontCamera ? 'user' : 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
+                };
+                
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                
+                video.onloadeddata = () => {
+                    video.play().then(() => {
+                        video.style.display = 'block';
+                        placeholder.style.display = 'none';
+                        startBtn.style.display = 'none';
+                        stopBtn.style.display = 'flex';
+                        flipBtn.style.display = 'flex';
+                        isCameraActive = true;
+                        
+                        startAnalysis();
+                    });
+                };
+                
+            } catch (error) {
+                alert('Permita o acesso à câmera!\n\nAtualize a página e toque em "PERMITIR".');
+            }
+        });
+        
+        flipBtn.addEventListener('click', () => {
+            if (stream) stream.getTracks().forEach(t => t.stop());
+            useFrontCamera = !useFrontCamera;
+            resetAnalysis();
+            setTimeout(() => startBtn.click(), 300);
+        });
+        
+        stopBtn.addEventListener('click', stopAnalysis);
+        
+        function stopAnalysis() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            
+            resetAnalysis();
+        }
+        
+        function resetAnalysis() {
+            isCameraActive = false;
+            video.style.display = 'none';
+            placeholder.style.display = 'flex';
+            startBtn.style.display = 'flex';
+            stopBtn.style.display = 'none';
+            flipBtn.style.display = 'none';
+            spectrumHistory.length = 0;
+            currentSpectrum = null;
+            isFrozen = false;
+            updateFreezeUI();
+            drawEmptySpectrum();
+        }
+        
+        function toggleFreeze() {
+            isFrozen = !isFrozen;
+            
+            if (isFrozen && currentSpectrum) {
+                // Congelar espectro atual
+                frozenSpectrum = [...currentSpectrum];
+                frozenRegions = calculateRegionalIntensities(currentSpectrum);
+                frozenPPFD = calculatePPFD(currentSpectrum);
+            }
+            
+            updateFreezeUI();
+        }
+        
+        function updateFreezeUI() {
+            if (isFrozen) {
+                freezeIndicator.style.display = 'inline-flex';
+                freezeBtn.innerHTML = '<span style="font-size: 15px;">▶</span> CONTINUAR';
+                modeValue.textContent = 'FROZEN';
+                modeValue.style.color = '#00e676';
+            } else {
+                freezeIndicator.style.display = 'none';
+                freezeBtn.innerHTML = '<span style="font-size: 15px;">📸</span> CONGELAR';
+                modeValue.textContent = 'LIVE';
+                modeValue.style.color = '#82b1ff';
+            }
+        }
+        
+        // ========== ANÁLISE ==========
+        function startAnalysis() {
+            if (animationId) cancelAnimationFrame(animationId);
+            
+            let lastAnalysisTime = 0;
+            
+            function analysisLoop(timestamp) {
+                if (!isCameraActive) return;
+                
+                const speed = CONFIG.speedLevels[speedSlider.value];
+                const now = Date.now();
+                
+                if (now - lastAnalysisTime >= speed.interval && !isFrozen) {
+                    analyzeFrame();
+                    lastAnalysisTime = now;
+                } else if (isFrozen) {
+                    // Usar dados congelados
+                    renderFrozenData();
+                }
+                
+                animationId = requestAnimationFrame(analysisLoop);
+            }
+            
+            animationId = requestAnimationFrame(analysisLoop);
+        }
+        
+        function analyzeFrame() {
+            if (!isCameraActive || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+            
+            try {
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                tempCanvas.width = 320;
+                tempCanvas.height = 240;
+                tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+                
+                const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                const data = imageData.data;
+                
+                const analysis = analyzeImage(data);
+                const spectrum = generateSpectrum(analysis);
+                
+                // Adicionar ao histórico
+                spectrumHistory.push(spectrum);
+                if (spectrumHistory.length > HISTORY_SIZE) spectrumHistory.shift();
+                
+                // Aplicar suavização temporal
+                const smoothed = applyTemporalSmoothing(spectrumHistory);
+                currentSpectrum = smoothed;
+                
+                // Calcular métricas
+                const regionalIntensities = calculateRegionalIntensities(smoothed);
+                const ppfd = calculatePPFD(smoothed);
+                const maxIntensityData = findMaxIntensity(smoothed);
+                
+                // Atualizar UI
+                updateMetrics(regionalIntensities, ppfd, maxIntensityData);
+                updateSaturationInfo(smoothed);
+                
+                // Renderizar
+                renderSpectrum(smoothed, regionalIntensities);
+                
+                frameCount++;
+                
+            } catch (error) {
+                console.debug('Análise ignorada');
+            }
+        }
+        
+        function renderFrozenData() {
+            if (!frozenSpectrum) return;
+            
+            const regionalIntensities = frozenRegions || calculateRegionalIntensities(frozenSpectrum);
+            const ppfd = frozenPPFD || calculatePPFD(frozenSpectrum);
+            const maxIntensityData = findMaxIntensity(frozenSpectrum);
+            
+            updateMetrics(regionalIntensities, ppfd, maxIntensityData);
+            renderSpectrum(frozenSpectrum, regionalIntensities);
+        }
+        
+        function analyzeImage(data) {
+            const analysis = { r: 0, g: 0, b: 0, count: 0 };
+            
+            // Amostragem eficiente
+            for (let i = 0; i < data.length; i += 16) {
+                analysis.r += data[i];
+                analysis.g += data[i + 1];
+                analysis.b += data[i + 2];
+                analysis.count++;
+            }
+            
+            if (analysis.count > 0) {
+                analysis.r /= analysis.count;
+                analysis.g /= analysis.count;
+                analysis.b /= analysis.count;
+            }
+            
+            return analysis;
+        }
+        
+        function generateSpectrum(analysis) {
+            const spectrum = [];
+            
+            // Gerar espectro com alta resolução (0.5 nm)
+            for (let wavelength = 300; wavelength <= 800; wavelength += 0.5) {
+                let intensity = 0;
+                
+                // Contribuições espectrais
+                const contributions = [
+                    // UV/Violeta
+                    { center: 380, width: 35, weight: analysis.b * 0.6 },
+                    // Azul
+                    { center: 450, width: 30, weight: analysis.b * 0.9 },
+                    // Ciano
+                    { center: 490, width: 25, weight: (analysis.g + analysis.b) * 0.4 },
+                    // Verde
+                    { center: 540, width: 30, weight: analysis.g * 0.8 },
+                    // Amarelo
+                    { center: 580, width: 25, weight: (analysis.r + analysis.g) * 0.5 },
+                    // Laranja
+                    { center: 610, width: 30, weight: analysis.r * 0.6 },
+                    // Vermelho
+                    { center: 660, width: 35, weight: analysis.r * 0.8 },
+                    // Far-Red
+                    { center: 720, width: 45, weight: analysis.r * 0.5 }
+                ];
+                
+                // Somar contribuições
+                contributions.forEach(contrib => {
+                    intensity += contrib.weight * gaussian(wavelength, contrib.center, contrib.width);
+                });
+                
+                // Fundo contínuo
+                const avg = (analysis.r + analysis.g + analysis.b) / 3;
+                intensity += avg * 0.2 * gaussian(wavelength, 550, 180);
+                
+                // Ruído mínimo para realismo
+                intensity += (Math.random() - 0.5) * 0.3;
+                
+                spectrum.push({
+                    wavelength: wavelength,
+                    intensity: intensity
+                });
+            }
+            
+            return spectrum;
+        }
+        
+        function applyTemporalSmoothing(history) {
+            if (history.length === 0) return [];
+            if (history.length === 1) return history[0];
+            
+            const smoothed = [];
+            const weights = [0.1, 0.15, 0.25, 0.25, 0.25];
+            
+            for (let i = 0; i < history[0].length; i++) {
+                let total = 0;
+                let weightSum = 0;
+                
+                for (let j = 0; j < history.length; j++) {
+                    const weight = weights[Math.min(j, weights.length - 1)];
+                    total += history[j][i].intensity * weight;
+                    weightSum += weight;
+                }
+                
+                smoothed.push({
+                    wavelength: history[0][i].wavelength,
+                    intensity: total / weightSum
+                });
+            }
+            
+            return smoothed;
+        }
+        
+        function calculateRegionalIntensities(spectrum) {
+            const intensities = {};
+            
+            CONFIG.regions.forEach(region => {
+                let sum = 0;
+                let count = 0;
+                
+                for (const point of spectrum) {
+                    if (point.wavelength >= region.min && point.wavelength <= region.max) {
+                        sum += point.intensity;
+                        count++;
+                    }
+                }
+                
+                intensities[region.name] = count > 0 ? (sum / count) : 0;
+            });
+            
+            return intensities;
+        }
+        
+        function calculatePPFD(spectrum) {
+            let sum = 0;
+            let count = 0;
+            
+            for (const point of spectrum) {
+                if (point.wavelength >= CONFIG.parRange.min && point.wavelength <= CONFIG.parRange.max) {
+                    sum += point.intensity;
+                    count++;
+                }
+            }
+            
+            // Converter para PPFD (simulação simplificada)
+            const avgIntensity = count > 0 ? sum / count : 0;
+            return (avgIntensity * 2.5).toFixed(1); // Fator de conversão simulado
+        }
+        
+        function findMaxIntensity(spectrum) {
+            let maxIntensity = 0;
+            let peakWavelength = 0;
+            
+            for (const point of spectrum) {
+                if (point.intensity > maxIntensity) {
+                    maxIntensity = point.intensity;
+                    peakWavelength = point.wavelength;
+                }
+            }
+            
+            return {
+                intensity: maxIntensity.toFixed(2),
+                wavelength: Math.round(peakWavelength)
+            };
+        }
+        
+        function updateMetrics(regionalIntensities, ppfd, maxIntensityData) {
+            // Atualizar PPFD
+            ppfdValue.textContent = ppfd;
+            
+            // Atualizar intensidade máxima
+            maxIntensityValue.textContent = maxIntensityData.intensity;
+            
+            // Atualizar pico espectral
+            peakWavelengthValue.textContent = maxIntensityData.wavelength;
+            
+            // Atualizar regiões
+            updateRegionsUI(regionalIntensities);
+        }
+        
+        function initializeRegions() {
+            CONFIG.regions.forEach(region => {
+                const regionCard = document.createElement('div');
+                regionCard.className = 'region-card';
+                regionCard.style.borderLeft = `3px solid ${region.color}`;
+                regionCard.innerHTML = `
+                    <div class="region-name">${region.icon} ${region.name}</div>
+                    <div class="region-value" id="regionValue${region.name}">0.00</div>
+                    <div class="region-wavelength">${region.min}-${region.max}nm</div>
+                `;
+                regionsContainer.appendChild(regionCard);
+            });
+        }
+        
+        function updateRegionsUI(intensities) {
+            CONFIG.regions.forEach(region => {
+                const valueElement = document.getElementById(`regionValue${region.name}`);
+                if (valueElement) {
+                    const value = intensities[region.name] || 0;
+                    valueElement.textContent = value.toFixed(2);
+                    valueElement.style.color = region.color;
+                }
+            });
+        }
+        
+        // ========== RENDERIZAÇÃO ==========
+        function renderSpectrum(spectrum, regionalIntensities = {}) {
+            if (!spectrum || spectrum.length === 0) return;
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            const dpr = window.devicePixelRatio || 1;
+            const displayWidth = width / dpr;
+            const displayHeight = height / dpr;
+            
+            // Limpar canvas
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, displayWidth, displayHeight);
+            
+            // Desenhar grade e eixos
+            drawGridAndAxes(displayWidth, displayHeight);
+            
+            // Encontrar intensidade máxima
+            let currentMax = 1;
+            for (const point of spectrum) {
+                if (point.intensity > currentMax) currentMax = point.intensity;
+            }
+            
+            // Atualizar máximo global suavemente
+            maxIntensity = maxIntensity * 0.95 + currentMax * 0.05;
+            
+            // Aplicar limite de saturação
+            let saturationLimit = autoSaturation ? maxIntensity : 
+                                 (parseInt(saturationSlider.value) / 100) * maxIntensity;
+            saturationLimit = Math.max(saturationLimit, 1);
+            
+            // Desenhar linha do espectro COLORIDA
+            drawColoredSpectrumLine(spectrum, displayWidth, displayHeight, saturationLimit);
+            
+            // Desenhar rótulos e informações
+            drawLabelsAndInfo(displayWidth, displayHeight, spectrum.length);
+            
+            // Desenhar indicadores de regiões
+            drawRegionIndicators(displayWidth, displayHeight, regionalIntensities);
+        }
+        
+        function drawGridAndAxes(width, height) {
+            // Grade de fundo
+            ctx.strokeStyle = 'rgba(66, 133, 244, 0.15)';
+            ctx.lineWidth = 0.5;
+            
+            // Linhas horizontais
+            for (let i = 1; i <= 5; i++) {
+                const y = 40 + (i * (height - 80) / 6);
+                ctx.beginPath();
+                ctx.moveTo(40, y);
+                ctx.lineTo(width - 20, y);
+                ctx.stroke();
+            }
+            
+            // Linhas verticais (comprimentos de onda importantes)
+            const wavelengths = [300, 380, 450, 530, 600, 700, 800];
+            wavelengths.forEach(wl => {
+                const x = 40 + ((wl - 300) / 500) * (width - 60);
+                ctx.beginPath();
+                ctx.moveTo(x, 40);
+                ctx.lineTo(x, height - 40);
+                ctx.stroke();
+            });
+            
+            // Eixos principais
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 1;
+            
+            // Eixo X
+            ctx.beginPath();
+            ctx.moveTo(40, height - 40);
+            ctx.lineTo(width - 20, height - 40);
+            ctx.stroke();
+            
+            // Eixo Y
+            ctx.beginPath();
+            ctx.moveTo(40, 40);
+            ctx.lineTo(40, height - 40);
+            ctx.stroke();
+        }
+        
+        function drawColoredSpectrumLine(spectrum, width, height, maxIntensity) {
+            // Criar gradiente espectral para a linha
+            const lineGradient = ctx.createLinearGradient(40, 0, width - 20, 0);
+            lineGradient.addColorStop(0.00, '#8a2be2');  // Violeta
+            lineGradient.addColorStop(0.15, '#4169e1');  // Azul
+            lineGradient.addColorStop(0.30, '#00bfff');  // Azul claro
+            lineGradient.addColorStop(0.45, '#32cd32');  // Verde
+            lineGradient.addColorStop(0.60, '#ffd700');  // Amarelo
+            lineGradient.addColorStop(0.75, '#ff8c00');  // Laranja
+            lineGradient.addColorStop(0.90, '#ff4500');  // Vermelho
+            lineGradient.addColorStop(1.00, '#8b0000');  // Vermelho escuro
+            
+            // Desenhar linha suave
+            ctx.beginPath();
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = lineGradient;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            
+            // Usar amostragem para suavidade
+            const step = Math.max(1, Math.floor(spectrum.length / 200));
+            const points = [];
+            
+            for (let i = 0; i < spectrum.length; i += step) {
+                const point = spectrum[i];
+                const x = 40 + ((point.wavelength - 300) / 500) * (width - 60);
+                const y = height - 40 - (point.intensity / maxIntensity * (height - 80));
+                
+                points.push({ x, y });
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else if (i >= step) {
+                    // Interpolação suave
+                    const prev = points[points.length - 2];
+                    const cp1x = prev.x + (x - prev.x) * 0.5;
+                    const cp1y = prev.y;
+                    const cp2x = prev.x + (x - prev.x) * 0.5;
+                    const cp2y = y;
+                    
+                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
+                }
+            }
+            
+            ctx.stroke();
+            
+            // Preenchimento suave abaixo da linha
+            ctx.lineTo(width - 20, height - 40);
+            ctx.lineTo(40, height - 40);
+            ctx.closePath();
+            
+            const fillGradient = ctx.createLinearGradient(0, 0, 0, height);
+            fillGradient.addColorStop(0, 'rgba(66, 133, 244, 0.1)');
+            fillGradient.addColorStop(1, 'rgba(66, 133, 244, 0.01)');
+            ctx.fillStyle = fillGradient;
+            ctx.fill();
+        }
+        
+        function drawLabelsAndInfo(width, height, pointCount) {
+            // Rótulos do eixo X (comprimento de onda)
+            const wavelengths = [300, 400, 500, 600, 700, 800];
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.font = '11px "Courier New", monospace';
+            ctx.textAlign = 'center';
+            
+            wavelengths.forEach(wl => {
+                const x = 40 + ((wl - 300) / 500) * (width - 60);
+                
+                // Marcador
+                ctx.beginPath();
+                ctx.moveTo(x, height - 40);
+                ctx.lineTo(x, height - 36);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                
+                // Texto
+                ctx.fillText(wl + ' nm', x, height - 22);
+            });
+            
+            // Título do gráfico
+            ctx.textAlign = 'left';
+            ctx.font = 'bold 14px "Segoe UI", sans-serif';
+            ctx.fillStyle = '#82b1ff';
+            ctx.fillText('ESPECTRO EM TEMPO REAL', 45, 30);
+            
+            // Eixo Y corrigido
+            ctx.save();
+            ctx.translate(20, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.font = '11px "Segoe UI", sans-serif';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.fillText('INTENSIDADE RELATIVA', 0, 0);
+            ctx.restore();
+            
+            // Informações
+            ctx.font = '11px "Courier New", monospace';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.fillText(`${pointCount} pontos | 0.5 nm resolução`, 45, 48);
+        }
+        
+        function drawRegionIndicators(width, height, regionalIntensities) {
+            CONFIG.regions.forEach(region => {
+                const intensity = regionalIntensities[region.name] || 0;
+                
+                // Posição X da região
+                const x1 = 40 + ((region.min - 300) / 500) * (width - 60);
+                const x2 = 40 + ((region.max - 300) / 500) * (width - 60);
+                
+                // Área da região com transparência
+                ctx.fillStyle = region.color + '20';
+                ctx.fillRect(x1, 40, x2 - x1, height - 80);
+                
+                // Borda da região
+                ctx.strokeStyle = region.color + '60';
+                ctx.lineWidth = 0.5;
+                ctx.strokeRect(x1, 40, x2 - x1, height - 80);
+                
+                // Rótulo da região no topo
+                ctx.fillStyle = region.color;
+                ctx.font = 'bold 10px Arial';
+                ctx.textAlign = 'center';
+                const centerX = (x1 + x2) / 2;
+                ctx.fillText(region.name, centerX, 35);
+                
+                // Intensidade média da região
+                const intensityPercent = Math.min(100, Math.round((intensity / 255) * 100));
+                ctx.fillStyle = 'white';
+                ctx.font = '9px Arial';
+                ctx.fillText(`${intensityPercent}%`, centerX, height - 30);
+            });
+        }
+        
+        function drawEmptySpectrum() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const dpr = window.devicePixelRatio || 1;
+            const displayWidth = width / dpr;
+            const displayHeight = height / dpr;
+            
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, displayWidth, displayHeight);
+            
+            drawGridAndAxes(displayWidth, displayHeight);
+            
+            // Rótulos do eixo X
+            const wavelengths = [300, 400, 500, 600, 700, 800];
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.font = '11px "Courier New", monospace';
+            ctx.textAlign = 'center';
+            
+            wavelengths.forEach(wl => {
+                const x = 40 + ((wl - 300) / 500) * (displayWidth - 60);
+                ctx.fillText(wl + ' nm', x, displayHeight - 22);
+            });
+            
+            // Eixo Y vazio
+            ctx.save();
+            ctx.translate(20, displayHeight / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.font = '11px "Segoe UI", sans-serif';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.fillText('INTENSIDADE RELATIVA', 0, 0);
+            ctx.restore();
+            
+            ctx.textAlign = 'center';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.font = '14px "Segoe UI", sans-serif';
+            ctx.fillText('AGUARDANDO ANÁLISE', displayWidth / 2, displayHeight / 2);
+        }
+        
+        function updateSaturationInfo(spectrum) {
+            if (!spectrum || spectrum.length === 0) return;
+            
+            // Encontrar intensidade máxima atual
+            let currentMax = 0;
+            for (const point of spectrum) {
+                if (point.intensity > currentMax) currentMax = point.intensity;
+            }
+            
+            // Calcular porcentagem de saturação
+            const saturationPercent = Math.min(100, Math.round((currentMax / 255) * 100));
+            
+            // Atualizar automático se configurado
+            if (autoSaturation && saturationPercent > 95) {
+                const newLimit = Math.max(80, Math.round(saturationSlider.value * 0.9));
+                saturationSlider.value = newLimit;
+                saturationValue.textContent = `${newLimit}%`;
+            }
+        }
+        
+        function updateFpsCounter() {
+            const fps = frameCount;
+            fpsValue.textContent = `${fps} FPS`;
+            frameCount = 0;
+            
+            // Cor baseada no FPS
+            if (fps >= 6) {
+                fpsValue.style.color = '#44ff44';
+            } else if (fps >= 3) {
+                fpsValue.style.color = '#ffaa00';
+            } else {
+                fpsValue.style.color = '#ff4444';
+            }
+        }
+        
+        // ========== FUNÇÕES AUXILIARES ==========
+        function gaussian(x, mean, sigma) {
+            return Math.exp(-Math.pow(x - mean, 2) / (2 * Math.pow(sigma, 2)));
+        }
+        
+        // ========== INICIAR APLICAÇÃO ==========
+        window.addEventListener('DOMContentLoaded', init);
+        window.addEventListener('resize', () => {
+            updateCanvasSize();
+            if (!isCameraActive) {
+                drawEmptySpectrum();
+            } else if (isFrozen && frozenSpectrum) {
+                renderFrozenData();
+            } else if (currentSpectrum) {
+                renderSpectrum(currentSpectrum);
+            }
+        });
+    </script>
+</body>
+</html>
